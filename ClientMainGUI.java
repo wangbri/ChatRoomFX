@@ -1,9 +1,5 @@
 package assignment7;
 
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -21,6 +17,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 
+@SuppressWarnings("restriction")
 public class ClientMainGUI extends Application {
 	
 	public ObservableList<String> clientList = FXCollections.observableArrayList("Client A", "Client B", "Client C");
@@ -43,10 +40,9 @@ public class ClientMainGUI extends Application {
     }
     
     public class UpdateableListViewSkin<T> extends ListViewSkin<T> {
-
+		
 		public UpdateableListViewSkin(ListView<T> arg0) {
 			super(arg0);
-			// TODO Auto-generated constructor stub
 		}
 		
 		public void refresh() {
@@ -64,7 +60,8 @@ public class ClientMainGUI extends Application {
     	updateLobby();
     }
     
-    public void updateLobby() {
+    @SuppressWarnings("rawtypes")
+	public void updateLobby() {
     	lobbyChats.setItems(chatList);
     	lobbyClients.setItems(clientList);
     	
@@ -81,6 +78,17 @@ public class ClientMainGUI extends Application {
         } catch (Exception ex) {
             Logger.getLogger(ClientMainGUI.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
     }
 	
 	

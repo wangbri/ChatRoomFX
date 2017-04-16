@@ -2,15 +2,10 @@ package assignment7;
 
 import java.io.*;
 import java.net.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-
 import javax.swing.*;
-//import java.awt.*;
-import java.awt.event.*;
 import javafx.application.Application;
 
-public class ClientMain extends ClientObserver{
+public class ClientMain {
 	private JTextArea incoming;
 	private JTextField outgoing;
 	private BufferedReader reader;
@@ -20,37 +15,46 @@ public class ClientMain extends ClientObserver{
 		setUpNetworking();
 	}
 
-	private void setUpNetworking() throws Exception {
-		@SuppressWarnings("resource")
+	@SuppressWarnings("resource")
+	private void setUpNetworking() throws Exception {		
+		// establish connection with server
 		Socket sock = new Socket("127.0.0.1", 4242);
-		InputStreamReader streamReader = new InputStreamReader(sock.getInputStream());
+		
+		// reads input from socket from server -> client
+		InputStreamReader streamReader = new InputStreamReader(sock.getInputStream());	
 		reader = new BufferedReader(streamReader);
-		writer = new PrintWriter(sock.getOutputStream());
-		System.out.println("networking established");
-		Thread readerThread = new Thread(new IncomingReader()); // one thread per client but is used to prevent blocking when waiting for 
+		
+		// writes output to socket from client -> server
+		writer = new PrintWriter(sock.getOutputStream());	
+		
+		// one thread per client but is used to prevent blocking when waiting for server input
+		Thread readerThread = new Thread(new IncomingReader()); 
 		readerThread.start();
+		
+		System.out.println("networking established");
 	}
 
-	class SendButtonListener implements ActionListener {
-		public void actionPerformed(ActionEvent ev) {
-			writer.println(outgoing.getText());
-			writer.flush();
-			outgoing.setText("");
-			outgoing.requestFocus();
-		}
-	}
+//	class SendButtonListener implements ActionListener {
+//		public void actionPerformed(ActionEvent ev) {
+//			writer.println(outgoing.getText());
+//			writer.flush();
+//			outgoing.setText("");
+//			outgoing.requestFocus();
+//		}
+//	}
 
 	public static void main(String[] args) {
-		ClientMainGUI cmGUI = new ClientMainGUI();
 		Application.launch(ClientMainGUI.class, args);
-//		try {
-//			new ClientMain().run();
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
+		try {
+			new ClientMain().run();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
-
+	/*
+	 * Run task for client thread: constantly checks for input from server and updates client
+	 */
 	class IncomingReader implements Runnable {
 		public void run() {
 			String message;
