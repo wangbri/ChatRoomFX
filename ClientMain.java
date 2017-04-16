@@ -2,9 +2,13 @@ package assignment7;
 
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import javax.swing.*;
 //import java.awt.*;
 import java.awt.event.*;
+import javafx.application.Application;
 
 public class ClientMain {
 	private JTextArea incoming;
@@ -12,7 +16,6 @@ public class ClientMain {
 	private BufferedReader reader;
 	private PrintWriter writer;
 	
-
 	public void run() throws Exception {
 		setUpNetworking();
 	}
@@ -24,7 +27,7 @@ public class ClientMain {
 		reader = new BufferedReader(streamReader);
 		writer = new PrintWriter(sock.getOutputStream());
 		System.out.println("networking established");
-		Thread readerThread = new Thread(new IncomingReader());
+		Thread readerThread = new Thread(new IncomingReader()); // one thread per client but is used to prevent blocking when waiting for 
 		readerThread.start();
 	}
 
@@ -38,12 +41,15 @@ public class ClientMain {
 	}
 
 	public static void main(String[] args) {
-		try {
-			new ClientMain().run();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		ClientMainGUI cmGUI = new ClientMainGUI();
+		Application.launch(ClientMainGUI.class, args);
+//		try {
+//			new ClientMain().run();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 	}
+	
 
 	class IncomingReader implements Runnable {
 		public void run() {

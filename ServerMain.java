@@ -7,10 +7,10 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Observable;
 
-public class ChatServer extends Observable {
+public class ServerMain extends Observable {
 	public static void main(String[] args) {
 		try {
-			new ChatServer().setUpNetworking();
+			new ServerMain().setUpNetworking();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -25,7 +25,7 @@ public class ChatServer extends Observable {
 			Thread t = new Thread(new ClientHandler(clientSocket));
 			t.start();
 			this.addObserver(writer);
-			//System.out.println("got a connection");
+			System.out.println("got a connection");
 		}
 	}
 	class ClientHandler implements Runnable {
@@ -44,7 +44,7 @@ public class ChatServer extends Observable {
 			String message;
 			try {
 				while ((message = reader.readLine()) != null) {
-					//System.out.println("server read "+message);
+					System.out.println("server read "+message);
 					setChanged();
 					notifyObservers(message);
 				}
