@@ -10,7 +10,7 @@ import javax.swing.*;
 import java.awt.event.*;
 import javafx.application.Application;
 
-public class ClientMain {
+public class ClientMain extends ClientObserver{
 	private JTextArea incoming;
 	private JTextField outgoing;
 	private BufferedReader reader;

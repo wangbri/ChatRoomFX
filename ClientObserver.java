@@ -5,14 +5,17 @@ import java.io.PrintWriter;
 import java.util.Observable;
 import java.util.Observer;
 
-public class ClientObserver extends PrintWriter implements Observer {
-	public ClientObserver(OutputStream out) {
-		super(out);
+public class ClientObserver {
+	public ClientObserver(){
+		
 	}
-	@Override
-	public void update(Observable o, Object arg) {
-		this.println(arg);
-		this.flush();
+//	public ClientObserver(OutputStream out) {
+//		super(out);
+//	}
+
+	
+	public void update(String arg) {
+		System.out.println(arg);
 	}
 
 }
