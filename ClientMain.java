@@ -1,70 +1,96 @@
 package assignment7;
 
-import java.io.*;
-import java.net.*;
-import javax.swing.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import com.sun.javafx.scene.control.skin.ListViewSkin;
+
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.layout.BorderPane;
+import javafx.stage.Stage;
 
-public class ClientMain {
-	private JTextArea incoming;
-	private JTextField outgoing;
-	private BufferedReader reader;
-	private PrintWriter writer;
+import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.control.ListView;
+
+public class ClientMain extends Application {
 	
-	public void run() throws Exception {
-		setUpNetworking();
-	}
+	public ObservableList<String> clientList = FXCollections.observableArrayList();
+	public ObservableList<String> chatList;
+	public Object lock = new Object();
+   
+	public void start(Stage primaryStage) {
+		FXMLLoader loader = null;
+		
+        try {
+        	 loader = new FXMLLoader(getClass().getResource("ClientMainGUI.fxml"));
+	         primaryStage.setScene(new Scene((BorderPane) loader.load()));
+	         primaryStage.setTitle("ChatroomFX");
+	         primaryStage.show();
+        } catch (Exception ex) {
+            Logger.getLogger(ClientMain.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
-	@SuppressWarnings("resource")
-	private void setUpNetworking() throws Exception {		
-		// establish connection with server
-		Socket sock = new Socket("127.0.0.1", 4242);
-		
-		// reads input from socket from server -> client
-		InputStreamReader streamReader = new InputStreamReader(sock.getInputStream());	
-		reader = new BufferedReader(streamReader);
-		
-		// writes output to socket from client -> server
-		writer = new PrintWriter(sock.getOutputStream());	
-		
-		// one thread per client but is used to prevent blocking when waiting for server input
-		Thread readerThread = new Thread(new IncomingReader()); 
-		readerThread.start();
-		
-		System.out.println("networking established");
-	}
-
-//	class SendButtonListener implements ActionListener {
-//		public void actionPerformed(ActionEvent ev) {
-//			writer.println(outgoing.getText());
-//			writer.flush();
-//			outgoing.setText("");
-//			outgoing.requestFocus();
+        ClientController controller = loader.<ClientController>getController();
+        
+        ChatClient client = new ChatClient(this);   
+        
+        
+//        // initial update to client
+//        System.out.println("initial update");
+//        clientList = FXCollections.observableArrayList(client.clientList);
+//        controller.updateLobby(clientList);
+//		synchronized(client.lock) {
+//			client.lock.notify();
 //		}
-//	}
-
-	public static void main(String[] args) {
-		Application.launch(ClientMainGUI.class, args);
-		try {
-			new ClientMain().run();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
-	/*
-	 * Run task for client thread: constantly checks for input from server and updates client
-	 */
-	class IncomingReader implements Runnable {
-		public void run() {
-			String message;
-			try {
-				while ((message = reader.readLine()) != null) {
-					incoming.append(message + "\n");
-				}
-			} catch (IOException ex) {
-				ex.printStackTrace();
+        
+        // handles subsequent updates to client
+        client.clientList.addListener(new ListChangeListener<String>() {
+			@Override
+			public void onChanged(javafx.collections.ListChangeListener.Change<? extends String> c) {
+				System.out.println("from cm: " + client.clientList);
+				
+				Platform.runLater(new Runnable() {
+					@Override
+					public void run() {
+//						synchronized(lock) {
+//							try {
+//								lock.wait();
+//							} catch (InterruptedException e) {
+//								// TODO Auto-generated catch block
+//								e.printStackTrace();
+//							}
+//						}
+						
+						synchronized(clientList) {
+							System.out.println("here");
+							if (!client.clientList.isEmpty() && client.isFinished) {
+								clientList = FXCollections.observableArrayList(client.clientList);
+								clientList.remove(clientList.size() - 1);
+								controller.updateLobby(clientList);
+								System.out.println("listen: " + clientList);
+								
+								synchronized(client.lock) {
+									client.lock.notify();
+								}
+							}
+						}
+					}
+				});
 			}
-		}
-	}
+		});
+        
+        // wait until listener is implemented
+        client.startThread(client.readerThread);
+         
+        System.out.println("start: " + clientList);
+    }
 }
