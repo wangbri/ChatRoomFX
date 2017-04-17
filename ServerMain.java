@@ -13,8 +13,6 @@ import java.util.Observer;
 
 //TODO: change name
 public class ServerMain extends Observable {
-	private PrintWriter writer;
-	
 	
 	//keeps track of which clients are involved in which chat
 	//TODO: migrate client lists to ServerObservable class
@@ -37,7 +35,7 @@ public class ServerMain extends Observable {
 	public void registerObserver(ServerObservable chat, ClientObserver client){
 		//if chat already exists, just add the people to it
 		if(events.containsKey(chat)){
-				events.get(chat).add(client);
+			events.get(chat).add(client);
 		} else{
 			ArrayList<ClientObserver> newClients = new ArrayList<ClientObserver>();
 			newClients.add(client);
@@ -45,6 +43,8 @@ public class ServerMain extends Observable {
 			ServerObservable newChat = new ServerObservable();
 			events.put(newChat, newClients);
 		}
+		
+		updateServerClients(chat);
 	}
 	
 	/**
@@ -52,29 +52,37 @@ public class ServerMain extends Observable {
 	 * @param chat: the chat they are in
 	 * @param client: the client that wants to leave
 	 */
-	public void unregisterObserver(String chat, String client){
+	public void unregisterObserver(ServerObservable chat, ClientObserver client){
 		if(events.containsKey(chat)){	
-			 //when there are no more clients left in the chat
-			if(events.get(chat).size() == 2){
+			int index = events.get(chat).indexOf(client);
+			
+			//when there are no more clients left in the chat
+			events.get(chat).remove(index);
+			
+			try {
+				events.get(chat).get(index).getClient().close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			if(events.get(chat).size() == 0){
 				events.remove(chat);
 				//TODO: maybe close the port?
 			}
-			else{
-				int index = events.get(chat).indexOf(client);
-				events.get(chat).remove(index);
-			}
 		}
+		
 	}
 	
 	/**
 	 * Notify when something changes in the specific chat
 	 * @param chat: the chat that changed
 	 */
-	public void notifyObservers(ServerObservable chat, String message){
+	public void notifyObservers(ServerObservable chat, Object data){
 		ArrayList<ClientObserver> clients = events.get(chat);
 		
 		for(int i = 0; i < clients.size(); i++){
-			clients.get(i).update(chat, message);
+			clients.get(i).update(chat, data);
 		}
 	}
 
@@ -82,6 +90,10 @@ public class ServerMain extends Observable {
 	private void setUpNetworking() throws Exception {
 		// initial port for clients to connect
 		ServerSocket serverSock = new ServerSocket(4242);
+		ServerObservable chatLobby = new ServerObservable();
+		ArrayList<ClientObserver> clientsLobby = new ArrayList<ClientObserver>();
+		
+		events.put(chatLobby, clientsLobby);
 		
 		// constantly accepts clients and adds to observers list
 		while (true) {
@@ -89,20 +101,32 @@ public class ServerMain extends Observable {
 			Socket clientSocket = serverSock.accept();
 			
 			// writes output to socket from server -> client
-			//ClientObserver writer = new ClientObserver(clientSocket.getOutputStream());
-			writer = new PrintWriter(clientSocket.getOutputStream());	
+			ClientObserver writer = new ClientObserver(events.get(chatLobby).size(), clientSocket, clientSocket.getOutputStream());
 			
-			// create thread to handle each client
-			Thread t = new Thread(new ClientHandler(clientSocket));
-			t.start();
+			// create thread to handle (read) each client
+//			Thread t = new Thread(new ClientHandler(clientSocket));
+//			t.start();
 			
-			//TODO: change to registerObserver
-			//this.addObserver((Observer) writer);
+			registerObserver(chatLobby, writer);
+			
+//			if (events.get(chatLobby).size() == 2) {
+//				unregisterObserver(chatLobby, writer);
+//			}
+			
 			System.out.println("got a connection");
-			
-			
 		}
 	}
+	
+	public void updateServerClients(ServerObservable chat) {
+		for (ClientObserver w : events.get(chat)) {
+			for (int i = 0; i < events.get(chat).size(); i++) {
+				w.update(chat, events.get(chat).get(i).toString());
+			}
+			w.update(chat, null);
+		}
+	}
+	
+	// reads data from client
 	class ClientHandler implements Runnable {
 		private BufferedReader reader;
 
