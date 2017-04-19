@@ -3,6 +3,7 @@ package assignment7;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
@@ -100,7 +101,7 @@ public class ServerMain  {
 			ObjectOutputStream obj = new ObjectOutputStream(clientSocket.getOutputStream());
 			
 			// writes output to socket from server -> client
-			ClientObserver writer = new ClientObserver(++clientNum, clientSocket, obj);
+			ClientObserver writer = new ClientObserver(++clientNum, clientSocket, obj, chatLobby);
 			
 			clientList.add(writer);
 			registerObserver(chatLobby, writer);		
@@ -167,7 +168,7 @@ public class ServerMain  {
 	// reads data from client
 	//TODO: rename class and add more for reading chat, lists, buttons
 	class ChatListHandler implements Runnable {
-		private BufferedReader reader;
+		private ObjectInputStream objectInput;
 		private ClientObserver client;
 
 		public ChatListHandler(Socket clientSocket, ClientObserver client) {
@@ -175,18 +176,18 @@ public class ServerMain  {
 			this.client = client;
 			
 			try {
-				reader = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+				objectInput = new ObjectInputStream(sock.getInputStream());
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
 
 		public void run() {
-			String message;
+			ClientCommand message;
 			
 			try {
-				while ((message = reader.readLine()) != null) {
-					if (message.equals("startChat") && events.get(chatLobby).contains(client)) {					
+				while ((message = (ClientCommand)objectInput.readObject()) != null) {
+					if (message.getCommand().equals("startChat") && events.get(chatLobby).contains(client)) {					
 						ServerObservable chat = new ServerObservable(++serverNum);
 						ArrayList<ClientObserver> clients = new ArrayList<ClientObserver>();
 						
@@ -196,11 +197,11 @@ public class ServerMain  {
 						System.out.println("added chat");
 					}
 					
-					if (message.contains("joinChat ") && events.get(chatLobby).contains(client)) {
+					if (message.getCommand().contains("joinChat ") && events.get(chatLobby).contains(client)) {
 						ServerObservable chat = null;
 						
 						for (ServerObservable s : events.keySet()) {
-							if (s.toString().equals(message.substring(9, message.length()))) {
+							if (s.toString().equals(message.getCommand().substring(9, message.getCommand().length()))) {
 								chat = s;
 								break;
 							}
@@ -211,21 +212,58 @@ public class ServerMain  {
 						updateServerClients(chatLobby);
 						System.out.println(events);
 						
-						Thread t = new Thread(new ChatHandler(chat, client));
-						t.start();
-						System.out.println("added client to chat");
-						
-						synchronized(lock) {
-							try {
-								lock.wait();
-							} catch (InterruptedException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
+//						Thread t = new Thread(new ChatHandler(chat, client));
+//						t.start();
+//						System.out.println("added client to chat");
+//						
+//						synchronized(lock) {
+//							try {
+//								lock.wait();
+//							} catch (InterruptedException e) {
+//								// TODO Auto-generated catch block
+//								e.printStackTrace();
+//							}
+//						}
+					}
+					
+					//JoinPrivateChat clientName
+					if(message.getCommand().contains("joinPrivateChat ")){
+						boolean exist = false;
+						int index = 0;
+						for(int i = 0; i < clientList.size(); i++){
+							if(clientList.get(i).toString().contains(message.getCommand().substring(16, message.getCommand().length()))){
+								exist = true;
+								index = i;
+								break;
 							}
 						}
-					}	
+						if(exist){
+							ServerObservable chat = new ServerObservable(++serverNum);
+							ArrayList<ClientObserver> clients = new ArrayList<ClientObserver>();
+							
+							clients.add(this.client);
+							clients.add(clientList.get(index));
+							registerObserver(chat, client);
+							
+							
+							//TODO: unregister both clients from their current server and update that server list
+							//updateServerClients(chatLobby);
+						}
+					}
+					
+					if(message.getCommand() == null){
+						System.out.println("Group message sent: " + message.getMessage());
+						ArrayList<String> messageList = new ArrayList<String>(Arrays.asList("",""));
+						messageList.set(1, message.getMessage());
+//						chat.setChange();
+						//TODO: find out what chat this client is currently in
+						notifyObservers(this.client.getChat(), messageList);
+					}
 				}
 			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

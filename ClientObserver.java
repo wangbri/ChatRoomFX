@@ -13,12 +13,22 @@ public class ClientObserver {
 	private int clientNum;
 	private Socket client;
 	private ObjectOutputStream obj;
+	private ServerObservable chat;
 	
-	public ClientObserver(int clientNum, Socket client, ObjectOutputStream obj) {
+	public ClientObserver(int clientNum, Socket client, ObjectOutputStream obj, ServerObservable chat) {
 		//super(out);
 		this.clientNum = clientNum;
 		this.client = client;
 		this.obj = obj;
+		this.chat = chat;
+	}
+
+	public ServerObservable getChat() {
+		return chat;
+	}
+
+	public void setChat(ServerObservable chat) {
+		this.chat = chat;
 	}
 
 	public int getClientNum() {
