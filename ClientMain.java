@@ -1,96 +1,116 @@
 package assignment7;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.sun.javafx.scene.control.skin.ListViewSkin;
 
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
-import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
 
 public class ClientMain extends Application {
 	
+	// for lobby
+	public Stage lobbyStage;
 	public ObservableList<String> clientList = FXCollections.observableArrayList();
-	public ObservableList<String> chatList;
-	public Object lock = new Object();
-   
+	public ObservableList<String> chatList = FXCollections.observableArrayList();
+	
+	// for chat
+	public Stage chatStage;
+	public ObservableList<String> chatClientList = FXCollections.observableArrayList();
+	
+	public FXMLLoader loaderChatroom;
+	public ChatClient client;
+	
+	
+//	public Object chatLock = new Object();
+//	public Object clientLock = new Object();
+	public ClientLobbyController lobbyController;
+	public ClientChatroomController chatController;
+	
+	public static void main(String[] args) {
+		launch(args);
+	}
+	
+	public void updateClientList(ArrayList<String> list) {
+		if (list.get(0).contains("Empty")) {
+			System.out.println("HERE");
+			list.clear();
+		}
+		
+		clientList = FXCollections.observableArrayList(list);
+		lobbyController.updateLobbyClients(clientList);
+	}
+
+	public void updateChatList(ArrayList<String> list) {	
+		chatList = FXCollections.observableArrayList(list);
+		lobbyController.updateLobbyChats(chatList);
+	}
+	
+	public void updateChatClientList(ArrayList<String> list) {		
+		if (list.get(0).contains("cEmpty")) {
+			list.clear();
+		}
+		
+		for (int i = 0; i < list.size(); i++) {
+			list.set(i, list.get(i).substring(1, list.get(i).length()));
+		}
+		
+		chatClientList = FXCollections.observableArrayList(list);
+		chatController.updateClientList(chatClientList);
+	}
+	
+	public void showChatroom(Stage chatStage) {
+		try {
+       	 	 loaderChatroom = new FXMLLoader(getClass().getResource("ClientChatroom.fxml"));
+	         chatStage.setScene(new Scene((BorderPane) loaderChatroom.load()));
+	         chatStage.setTitle("Chatroom");
+	         chatStage.show();
+       } catch (Exception ex) {
+          Logger.getLogger(ClientMain.class.getName()).log(Level.SEVERE, null, ex);
+       }
+		
+		chatController = loaderChatroom.<ClientChatroomController>getController();
+        chatController.setClient(client);
+	}
+	
+	public void exitLobby() {
+		lobbyStage.close();
+	}
+	
 	public void start(Stage primaryStage) {
-		FXMLLoader loader = null;
+		FXMLLoader loaderLobby = null;
+		
+		lobbyStage = new Stage();
+		chatStage = new Stage();
 		
         try {
-        	 loader = new FXMLLoader(getClass().getResource("ClientMainGUI.fxml"));
-	         primaryStage.setScene(new Scene((BorderPane) loader.load()));
-	         primaryStage.setTitle("ChatroomFX");
-	         primaryStage.show();
+        	 loaderLobby = new FXMLLoader(getClass().getResource("ClientLobby.fxml"));
+	         lobbyStage.setScene(new Scene((BorderPane) loaderLobby.load()));
+	         lobbyStage.setTitle("Lobby");
+	         lobbyStage.show();
         } catch (Exception ex) {
             Logger.getLogger(ClientMain.class.getName()).log(Level.SEVERE, null, ex);
         }
-
-        ClientController controller = loader.<ClientController>getController();
         
-        ChatClient client = new ChatClient(this);   
+//        this.showChatroom(chatStage);
+        
+        client = new ChatClient(this);  
+        
+        lobbyController = loaderLobby.<ClientLobbyController>getController();
+        lobbyController.setClient(client);
+//        client.clientReaderThread.start();
         
         
-//        // initial update to client
-//        System.out.println("initial update");
-//        clientList = FXCollections.observableArrayList(client.clientList);
-//        controller.updateLobby(clientList);
-//		synchronized(client.lock) {
-//			client.lock.notify();
-//		}
-        
-        // handles subsequent updates to client
-        client.clientList.addListener(new ListChangeListener<String>() {
-			@Override
-			public void onChanged(javafx.collections.ListChangeListener.Change<? extends String> c) {
-				System.out.println("from cm: " + client.clientList);
-				
-				Platform.runLater(new Runnable() {
-					@Override
-					public void run() {
-//						synchronized(lock) {
-//							try {
-//								lock.wait();
-//							} catch (InterruptedException e) {
-//								// TODO Auto-generated catch block
-//								e.printStackTrace();
-//							}
-//						}
-						
-						synchronized(clientList) {
-							System.out.println("here");
-							if (!client.clientList.isEmpty() && client.isFinished) {
-								clientList = FXCollections.observableArrayList(client.clientList);
-								clientList.remove(clientList.size() - 1);
-								controller.updateLobby(clientList);
-								System.out.println("listen: " + clientList);
-								
-								synchronized(client.lock) {
-									client.lock.notify();
-								}
-							}
-						}
-					}
-				});
-			}
-		});
-        
-        // wait until listener is implemented
-        client.startThread(client.readerThread);
          
-        System.out.println("start: " + clientList);
+        System.out.println("end");
     }
+	
+
 }
