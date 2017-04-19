@@ -1,9 +1,22 @@
 package assignment7;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+
+import org.bson.Document;
+import org.junit.Assert;
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -36,6 +49,37 @@ public class ClientMain extends Application {
 	
 	public static void main(String[] args) {
 		launch(args);
+		
+//		MongoClient mongoClient = new MongoClient(new MongoClientURI("mongodb://admin:pass@ds033066.mlab.com:33066/chatfx"));
+////		MongoClient mongoClient = new MongoClient();
+//		
+//		MongoDatabase database = mongoClient.getDatabase("chatfx");
+//		if (database.getCollection("mynewcollection") != null) {
+//			database.getCollection("mynewcollection").drop();
+//		}
+//		
+////		database.createCollection("testCollection");
+//		MongoCollection collection = (MongoCollection) database.getCollection("mynewcollection");
+//		
+//		List<Integer> books = Arrays.asList(27464, 747854);
+//		Document person = new Document("_id", "jo")
+//		                            .append("name", "Jo Bloggs")
+//		                            .append("address", new BasicDBObject("street", "123 Fake St")
+//		                                                         .append("city", "Faketon")
+//		                                                         .append("state", "MA")
+//		                                                         .append("zip", 12345))
+//		                            .append("books", books);
+//		
+//		
+//		collection.insertOne(person);
+//		
+//		
+//		
+//		
+//		
+//		
+//		
+//		mongoClient.close();
 	}
 	
 	// called by ChatClient
@@ -66,9 +110,8 @@ public class ClientMain extends Application {
 		chatController.updateClientList(chatClientList);
 	}
 	
-	public void updateChatMessage(ArrayList<String> list) {
-		chatClientList = FXCollections.observableArrayList(list);
-		chatController.updateChat(chatClientList);
+	public void updateChatMessage(String message) {
+		chatController.updateChat(message);
 	}
 	
 
@@ -105,13 +148,12 @@ public class ClientMain extends Application {
             Logger.getLogger(ClientMain.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-//        this.showChatroom(chatStage);
-        
         client = new ChatClient(this);  
         
         lobbyController = loaderLobby.<ClientLobbyController>getController();
         lobbyController.setClient(client);
-//        client.clientReaderThread.start();
+        
+        
         
         
          

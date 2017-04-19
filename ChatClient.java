@@ -10,7 +10,7 @@ public class ChatClient {
 //	private JTextArea incoming;
 //	private JTextField outgoing;
 	private BufferedReader reader;
-	public PrintWriter writer;
+	public ObjectOutputStream writer;
 	public Thread clientReaderThread;
 	public Thread chatReaderThread;
 	public Object clientLock = new Object();
@@ -42,16 +42,13 @@ public class ChatClient {
 		// establish connection with server
 		Socket sock = new Socket("127.0.0.1", 4242);
 		
-		// reads input from socket from server -> client
-		InputStreamReader streamReader = new InputStreamReader(sock.getInputStream());	
-		reader = new BufferedReader(streamReader);
-		chatReaderThread = new Thread(new ChatUpdater());
-		
 		objectInput = new ObjectInputStream(sock.getInputStream());
 		
 		// writes output to socket from client -> server
-		writer = new PrintWriter(sock.getOutputStream());	
+//		writer = new PrintWriter(sock.getOutputStream());	
+		writer = new ObjectOutputStream(sock.getOutputStream());
 		
+		// reads input from socket from server -> client
 		clientReaderThread = new Thread(new ListUpdater(clientList));
 		clientReaderThread.start();
 		
@@ -59,22 +56,38 @@ public class ChatClient {
 	}
 	
 	public void addChat() {
-		writer.println("startChat");
-		writer.flush();
+		ClientCommand cm = new ClientCommand("startChat", null, null);
+		writeCommand(cm);
 	}
 	
 	public void joinChat(String chat) {
 		client.showChatroom(client.chatStage);
 		client.exitLobby();
-		writer.println("joinChat " + chat);
-		writer.flush();
+		ClientCommand cm = new ClientCommand("joinChat " + chat, null, null);
+		writeCommand(cm);
 //		chatReaderThread.start();
 	}
 	
 	public void sendMessage(String message) {
-		System.out.println("send " + message);
-		writer.println(message);
-		writer.flush();
+		client.showChatroom(client.chatStage);
+		client.exitLobby();
+		ClientCommand cm = new ClientCommand(null, message, null);
+		writeCommand(cm);
+	}
+	
+	public void joinPrivateMessage(String client) {
+		ClientCommand cm = new ClientCommand("joinPrivateChat " + client, null, null);
+		writeCommand(cm);
+	}
+	
+	public void writeCommand(ClientCommand cm) {
+		try {
+			writer.writeObject(cm);
+			writer.reset();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	class ListUpdater implements Runnable {
@@ -87,23 +100,22 @@ public class ChatClient {
 		@SuppressWarnings("unchecked")
 		@Override
 		public void run() {
-			ArrayList<String> message = null;
+			ClientCommand message = null;
 			
 			// TODO Auto-generated method stub
 			while (true) {
 				synchronized(clientList) {
 					try {
-						while ((message = (ArrayList<String>) objectInput.readObject()) != null) {
+						while ((message = (ClientCommand) objectInput.readObject()) != null) {
 							System.out.println("from cc" + message);
-							if (message.get(0).contains("cClient") || message.get(0).contains("cEmpty")) {
-								client.updateChatClientList(message);
-							} else if (message.get(0).contains("Chat")) {
-								client.updateChatList(message);
-							} else if (message.get(0).contains("Client") || message.get(0).contains("Empty")) {
-								client.updateClientList(message);
-							} else if (!message.get(1).equals("")) {
-								message.remove(0);
-								client.updateChatMessage(message);
+							if (message.getList().get(0).contains("cClient") || message.getList().get(0).contains("cEmpty")) {
+								client.updateChatClientList(message.getList());
+							} else if (message.getList().get(0).contains("Chat")) {
+								client.updateChatList(message.getList());
+							} else if (message.getList().get(0).contains("Client") || message.getList().get(0).equals("Empty")) {
+								client.updateClientList(message.getList());
+							} else if (!message.getList().get(1).equals("")) {
+								client.updateChatMessage(message.getMessage());
 							}
 						}
 					} catch (ClassNotFoundException e) {
@@ -116,23 +128,6 @@ public class ChatClient {
 						System.out.println(message);
 					}
 				}
-			}
-		}
-	}
-	
-	/*
-	 * Run task for client thread: "constantly checks for input from server and updates client"
-	 */
-	class ChatUpdater implements Runnable {
-		public void run() {
-			String message;
-			try {
-				while ((message = reader.readLine()) != null) {
-					System.out.println(message);
-//					client.updateChatMessage(message);
-				}
-			} catch (IOException ex) {
-				ex.printStackTrace();
 			}
 		}
 	}

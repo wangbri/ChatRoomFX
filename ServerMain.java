@@ -74,7 +74,7 @@ public class ServerMain  {
 		
 		for(int i = 0; i < clients.size(); i++){
 			clients.get(i).update(chat, data);
-		}
+		}	
 		//TODO: change
 //		chat.clearChange();
 	}
@@ -258,7 +258,6 @@ public class ServerMain  {
 					System.out.println("Group message sent: " + message);
 					ArrayList<String> messageList = new ArrayList<String>(Arrays.asList("",""));
 					messageList.set(1, message);
-//					chat.setChange();
 					notifyObservers(chat, messageList);
 				}
 			}catch(IOException e){}

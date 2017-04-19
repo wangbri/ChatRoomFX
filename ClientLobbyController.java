@@ -11,7 +11,11 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListView;
+import javafx.scene.control.MenuItem;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.MouseEvent;
 
 public class ClientLobbyController implements Initializable {
@@ -30,6 +34,9 @@ public class ClientLobbyController implements Initializable {
     
     private ChatClient client;
     private String selectedChat;
+    private String selectedClient;
+    
+    private ContextMenu cm;
     
     public void setClient(ChatClient client) {
     	this.client = client;
@@ -37,7 +44,14 @@ public class ClientLobbyController implements Initializable {
     
     @Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
-    	
+    	cm = new ContextMenu();
+    	MenuItem cmItem1 = new MenuItem("Copy Image");
+    	cmItem1.setOnAction(new EventHandler<ActionEvent>() {
+    	    public void handle(ActionEvent e) {
+    	        client.joinPrivateMessage(selectedClient);
+    	    }
+    	});
+
     	lobbyChats.setOnMouseClicked(new EventHandler<MouseEvent>() {
 
 			@Override
@@ -46,6 +60,19 @@ public class ClientLobbyController implements Initializable {
 				selectedChat = lobbyChats.getSelectionModel().getSelectedItem();
 			}
     	
+    	});
+    	
+    	lobbyClients.setOnMouseClicked(new EventHandler<MouseEvent>() {
+
+			@Override
+			public void handle(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				if (arg0.isSecondaryButtonDown()) { // is right click
+					selectedClient = lobbyChats.getSelectionModel().getSelectedItem();
+					cm.show(lobbyClients, arg0.getScreenX(), arg0.getScreenY());
+				}
+			}
+    		
     	});
     	
 		// TODO Auto-generated method stub

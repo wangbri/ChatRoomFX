@@ -1,10 +1,12 @@
 package assignment7;
 
 import java.net.URL;
+import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
 
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -49,14 +51,15 @@ public class ClientChatroomController implements Initializable {
 		
 	}
     
-    public void updateChat(ObservableList<String> list) {
+    public void updateChat(String message) {
     	
     	Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
+				ObservableList<String> messages = FXCollections.observableArrayList(Arrays.asList(message));
 				ObservableList<String> history = chatText.getItems();
-				list.addAll(history);
-				chatText.setItems(list);
+				messages.addAll(history);
+				chatText.setItems(messages);
 			}
     	});
     }
