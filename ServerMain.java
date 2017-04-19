@@ -45,6 +45,7 @@ public class ServerMain  {
 		//if chat already exists, just add the people to it
 		if(events.containsKey(chat)){
 			events.get(chat).add(client);
+			client.setChat(chat);
 		}
 
 		updateServerClients(chat);
@@ -70,7 +71,7 @@ public class ServerMain  {
 	 * Notify when something changes in the specific chat
 	 * @param chat: the chat that changed
 	 */
-	public void notifyObservers(ServerObservable chat, Object data){
+	public void notifyObservers(ServerObservable chat, ClientCommand data){
 		ArrayList<ClientObserver> clients = events.get(chat);
 		
 		for(int i = 0; i < clients.size(); i++){
@@ -134,16 +135,18 @@ public class ServerMain  {
 			}
 		}
 		
+		ClientCommand cmd = new ClientCommand(null, null, clients);
+		
 		System.out.println("at update cc " + clients);
 		System.out.println(events);
 		
 		if (chat == chatLobby) {
 			for (ClientObserver w : clientList) {
-				w.update(chat, clients);
+				w.update(chat, cmd);
 			}
 		} else {
 			for (ClientObserver w : events.get(chat)) {
-				w.update(chat, clients);
+				w.update(chat, cmd);
 			}
 		}	
 	}
@@ -156,11 +159,12 @@ public class ServerMain  {
 		}
 		
 		chats.remove(chats.indexOf("Chat 0")); // don't display lobby in lobby chat list
-		System.out.println(chats);
+		
+		ClientCommand cmd = new ClientCommand(null, null, chats);
 		
 		if (!chats.isEmpty()) {
 			for (ClientObserver w : events.get(chatLobby)) {
-				w.update(chat, chats);
+				w.update(chat, cmd);
 			}
 		}
 	}
@@ -187,7 +191,10 @@ public class ServerMain  {
 			
 			try {
 				while ((message = (ClientCommand)objectInput.readObject()) != null) {
-					if (message.getCommand().equals("startChat") && events.get(chatLobby).contains(client)) {					
+					if(message.getCommand() == null){
+						System.out.println("Group message sent: " + message.getMessage());
+						notifyObservers(this.client.getChat(), message);
+					} else if (message.getCommand().equals("startChat") && events.get(chatLobby).contains(client)) {					
 						ServerObservable chat = new ServerObservable(++serverNum);
 						ArrayList<ClientObserver> clients = new ArrayList<ClientObserver>();
 						
@@ -195,9 +202,7 @@ public class ServerMain  {
 						events.put(chat, clients);
 						updateServerChats(chat);
 						System.out.println("added chat");
-					}
-					
-					if (message.getCommand().contains("joinChat ") && events.get(chatLobby).contains(client)) {
+					} else if (message.getCommand().contains("joinChat ") && events.get(chatLobby).contains(client)) {
 						ServerObservable chat = null;
 						
 						for (ServerObservable s : events.keySet()) {
@@ -224,10 +229,7 @@ public class ServerMain  {
 //								e.printStackTrace();
 //							}
 //						}
-					}
-					
-					//JoinPrivateChat clientName
-					if(message.getCommand().contains("joinPrivateChat ")){
+					} else if(message.getCommand().contains("joinPrivateChat ")){
 						boolean exist = false;
 						int index = 0;
 						for(int i = 0; i < clientList.size(); i++){
@@ -248,10 +250,7 @@ public class ServerMain  {
 						}
 					}
 					
-					if(message.getCommand() == null){
-						System.out.println("Group message sent: " + message.getMessage());
-						notifyObservers(this.client.getChat(), message.getMessage());
-					}
+					
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -262,39 +261,39 @@ public class ServerMain  {
 		}
 	}
 	
-	//TODO: changed
-	//TODO: find a way to find out who sent the message
-	class ChatHandler implements Runnable {
-		private ArrayList<ClientObserver> clients;
-		private ServerObservable chat;
-		private BufferedReader reader;
-		
-		ChatHandler(ServerObservable chat, ClientObserver messageClient){
-			this.chat = chat;
-			clients = events.get(chat);
-			Socket sock = messageClient.getClient();
-			try {
-				reader = new BufferedReader(new InputStreamReader(sock.getInputStream()));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		
-		@Override
-		public void run() {
-			// TODO Auto-generated method stub
-			String message;
-			try{
-				while((message = reader.readLine()) != null){
-					System.out.println("Group message sent: " + message);
-					ArrayList<String> messageList = new ArrayList<String>(Arrays.asList("",""));
-					messageList.set(1, message);
-//					chat.setChange();
-					notifyObservers(chat, messageList);
-				}
-			}catch(IOException e){}
-			
-		}
-		
-	}
+//	//TODO: changed
+//	//TODO: find a way to find out who sent the message
+//	class ChatHandler implements Runnable {
+//		private ArrayList<ClientObserver> clients;
+//		private ServerObservable chat;
+//		private BufferedReader reader;
+//		
+//		ChatHandler(ServerObservable chat, ClientObserver messageClient){
+//			this.chat = chat;
+//			clients = events.get(chat);
+//			Socket sock = messageClient.getClient();
+//			try {
+//				reader = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//		}
+//		
+//		@Override
+//		public void run() {
+//			// TODO Auto-generated method stub
+//			String message;
+//			try{
+//				while((message = reader.readLine()) != null){
+//					System.out.println("Group message sent: " + message);
+//					ArrayList<String> messageList = new ArrayList<String>(Arrays.asList("",""));
+//					messageList.set(1, message);
+////					chat.setChange();
+//					notifyObservers(chat, messageList);
+//				}
+//			}catch(IOException e){}
+//			
+//		}
+//		
+//	}
 }

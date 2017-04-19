@@ -107,15 +107,17 @@ public class ChatClient {
 				synchronized(clientList) {
 					try {
 						while ((message = (ClientCommand) objectInput.readObject()) != null) {
-							System.out.println("from cc" + message);
-							if (message.getList().get(0).contains("cClient") || message.getList().get(0).contains("cEmpty")) {
+							System.out.println("from cc " + message.getMessage() + message.getList());
+							if (message.getCommand() == null && message.getList() == null) {
+								System.out.println("sent message");
+								client.updateChatMessage(message.getMessage());
+							} else if (message.getList().get(0).contains("cClient") || message.getList().get(0).contains("cEmpty")) {
+								System.out.println("HERE");
 								client.updateChatClientList(message.getList());
 							} else if (message.getList().get(0).contains("Chat")) {
 								client.updateChatList(message.getList());
 							} else if (message.getList().get(0).contains("Client") || message.getList().get(0).equals("Empty")) {
 								client.updateClientList(message.getList());
-							} else if (!message.getList().get(1).equals("")) {
-								client.updateChatMessage(message.getMessage());
 							}
 						}
 					} catch (ClassNotFoundException e) {

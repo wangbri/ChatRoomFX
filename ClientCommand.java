@@ -1,8 +1,9 @@
 package assignment7;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class ClientCommand {
+public class ClientCommand implements Serializable {
 	private String command;
 	private String message;
 	private ArrayList<String> list;

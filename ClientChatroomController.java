@@ -56,10 +56,10 @@ public class ClientChatroomController implements Initializable {
     	Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
-				ObservableList<String> messages = FXCollections.observableArrayList(Arrays.asList(message));
-				ObservableList<String> history = chatText.getItems();
-				messages.addAll(history);
-				chatText.setItems(messages);
+//				ObservableList<String> messages = FXCollections.observableArrayList(Arrays.asList(message));
+//				ObservableList<String> history = chatText.getItems();
+//				messages.addAll(history);
+//				chatText.setItems(messages);
 			}
     	});
     }
@@ -69,6 +69,7 @@ public class ClientChatroomController implements Initializable {
     	Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
+				System.out.println("AT CC:" + list.toString());
 				chatClients.getItems().clear();
 				chatClients.setItems(list);
 			}
