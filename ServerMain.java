@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 //import java.util.Observable;
 //import java.util.Observer;
@@ -20,6 +21,7 @@ public class ServerMain  {
 	HashMap<ServerObservable, ArrayList<ClientObserver>> events = new HashMap<ServerObservable, ArrayList<ClientObserver>>();
 	ArrayList<ClientObserver> clientList = new ArrayList<ClientObserver>();
 	ServerObservable chatLobby;
+	Object lock = new Object();
 	static int clientNum;
 	int serverNum;
 	
@@ -210,8 +212,18 @@ public class ServerMain  {
 						System.out.println(events);
 						
 						Thread t = new Thread(new ChatHandler(chat, client));
+						t.start();
 						System.out.println("added client to chat");
-					}
+						
+						synchronized(lock) {
+							try {
+								lock.wait();
+							} catch (InterruptedException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+					}	
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -221,12 +233,13 @@ public class ServerMain  {
 	
 	//TODO: changed
 	//TODO: find a way to find out who sent the message
-	class ChatHandler implements Runnable{
+	class ChatHandler implements Runnable {
 		private ArrayList<ClientObserver> clients;
 		private ServerObservable chat;
 		private BufferedReader reader;
 		
 		ChatHandler(ServerObservable chat, ClientObserver messageClient){
+			this.chat = chat;
 			clients = events.get(chat);
 			Socket sock = messageClient.getClient();
 			try {
@@ -243,8 +256,10 @@ public class ServerMain  {
 			try{
 				while((message = reader.readLine()) != null){
 					System.out.println("Group message sent: " + message);
+					ArrayList<String> messageList = new ArrayList<String>(Arrays.asList("",""));
+					messageList.set(1, message);
 //					chat.setChange();
-					notifyObservers(chat, message);
+					notifyObservers(chat, messageList);
 				}
 			}catch(IOException e){}
 			

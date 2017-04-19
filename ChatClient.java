@@ -45,6 +45,7 @@ public class ChatClient {
 		// reads input from socket from server -> client
 		InputStreamReader streamReader = new InputStreamReader(sock.getInputStream());	
 		reader = new BufferedReader(streamReader);
+		chatReaderThread = new Thread(new ChatUpdater());
 		
 		objectInput = new ObjectInputStream(sock.getInputStream());
 		
@@ -67,9 +68,11 @@ public class ChatClient {
 		client.exitLobby();
 		writer.println("joinChat " + chat);
 		writer.flush();
+//		chatReaderThread.start();
 	}
 	
 	public void sendMessage(String message) {
+		System.out.println("send " + message);
 		writer.println(message);
 		writer.flush();
 	}
@@ -84,7 +87,7 @@ public class ChatClient {
 		@SuppressWarnings("unchecked")
 		@Override
 		public void run() {
-			ArrayList<String> message;
+			ArrayList<String> message = null;
 			
 			// TODO Auto-generated method stub
 			while (true) {
@@ -98,6 +101,9 @@ public class ChatClient {
 								client.updateChatList(message);
 							} else if (message.get(0).contains("Client") || message.get(0).contains("Empty")) {
 								client.updateClientList(message);
+							} else if (!message.get(1).equals("")) {
+								message.remove(0);
+								client.updateChatMessage(message);
 							}
 						}
 					} catch (ClassNotFoundException e) {
@@ -106,6 +112,8 @@ public class ChatClient {
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
+					} catch (ClassCastException e) {
+						System.out.println(message);
 					}
 				}
 			}
@@ -115,12 +123,13 @@ public class ChatClient {
 	/*
 	 * Run task for client thread: "constantly checks for input from server and updates client"
 	 */
-	class IncomingReader implements Runnable {
+	class ChatUpdater implements Runnable {
 		public void run() {
 			String message;
 			try {
 				while ((message = reader.readLine()) != null) {
-					client.updateChatMessage(message);
+					System.out.println(message);
+//					client.updateChatMessage(message);
 				}
 			} catch (IOException ex) {
 				ex.printStackTrace();

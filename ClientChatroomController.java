@@ -1,6 +1,7 @@
 package assignment7;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import javafx.application.Platform;
@@ -48,12 +49,14 @@ public class ClientChatroomController implements Initializable {
 		
 	}
     
-    public void updateChat(String message) {
+    public void updateChat(ObservableList<String> list) {
     	
     	Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
-				messageField.setText(message);
+				ObservableList<String> history = chatText.getItems();
+				list.addAll(history);
+				chatText.setItems(list);
 			}
     	});
     }
