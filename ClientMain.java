@@ -38,9 +38,9 @@ public class ClientMain extends Application {
 		launch(args);
 	}
 	
+	// called by ChatClient
 	public void updateClientList(ArrayList<String> list) {
 		if (list.get(0).contains("Empty")) {
-			System.out.println("HERE");
 			list.clear();
 		}
 		
@@ -65,7 +65,7 @@ public class ClientMain extends Application {
 		chatClientList = FXCollections.observableArrayList(list);
 		chatController.updateClientList(chatClientList);
 	}
-	
+
 	public void showChatroom(Stage chatStage) {
 		try {
        	 	 loaderChatroom = new FXMLLoader(getClass().getResource("ClientChatroom.fxml"));

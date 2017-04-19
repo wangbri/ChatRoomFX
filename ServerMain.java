@@ -109,8 +109,6 @@ public class ServerMain extends Observable {
 		}
 	}
 	
-	
-	
 	public void updateServerClients(ServerObservable chat) {
 		ArrayList<String> clients = new ArrayList<String>();
 		
@@ -204,7 +202,6 @@ public class ServerMain extends Observable {
 						}
 						
 						unregisterObserver(chatLobby, client);
-						System.out.println("after unregister " + events);
 						registerObserver(chat, client);
 						updateServerClients(chatLobby);
 						System.out.println(events);

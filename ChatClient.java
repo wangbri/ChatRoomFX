@@ -69,6 +69,11 @@ public class ChatClient {
 		writer.flush();
 	}
 	
+	public void sendMessage(String message) {
+		writer.println(message);
+		writer.flush();
+	}
+	
 	class ListUpdater implements Runnable {
 		ObservableList<String> list;
 		
