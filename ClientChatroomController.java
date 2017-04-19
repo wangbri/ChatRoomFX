@@ -48,6 +48,16 @@ public class ClientChatroomController implements Initializable {
 		
 	}
     
+    public void updateChat(String message) {
+    	
+    	Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				messageField.setText(message);
+			}
+    	});
+    }
+    
     public void updateClientList(ObservableList<String> list) {
     	
     	Platform.runLater(new Runnable() {

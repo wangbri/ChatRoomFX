@@ -194,7 +194,7 @@ public class ServerMain  {
 						System.out.println("added chat");
 					}
 					
-					if (message.substring(0, 9).equals("joinChat ") && events.get(chatLobby).contains(client)) {
+					if (message.contains("joinChat ") && events.get(chatLobby).contains(client)) {
 						ServerObservable chat = null;
 						
 						for (ServerObservable s : events.keySet()) {

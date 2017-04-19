@@ -65,6 +65,11 @@ public class ClientMain extends Application {
 		chatClientList = FXCollections.observableArrayList(list);
 		chatController.updateClientList(chatClientList);
 	}
+	
+	public void updateChatMessage(String message) {
+		chatController.updateChat(message);
+	}
+	
 
 	public void showChatroom(Stage chatStage) {
 		try {

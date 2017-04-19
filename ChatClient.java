@@ -43,8 +43,8 @@ public class ChatClient {
 		Socket sock = new Socket("127.0.0.1", 4242);
 		
 		// reads input from socket from server -> client
-//		InputStreamReader streamReader = new InputStreamReader(sock.getInputStream());	
-//		reader = new BufferedReader(streamReader);
+		InputStreamReader streamReader = new InputStreamReader(sock.getInputStream());	
+		reader = new BufferedReader(streamReader);
 		
 		objectInput = new ObjectInputStream(sock.getInputStream());
 		
@@ -120,7 +120,7 @@ public class ChatClient {
 			String message;
 			try {
 				while ((message = reader.readLine()) != null) {
-					System.out.println(message);
+					client.updateChatMessage(message);
 				}
 			} catch (IOException ex) {
 				ex.printStackTrace();
