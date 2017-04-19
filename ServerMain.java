@@ -75,7 +75,7 @@ public class ServerMain  {
 		
 		for(int i = 0; i < clients.size(); i++){
 			clients.get(i).update(chat, data);
-		}	
+		}
 		//TODO: change
 //		chat.clearChange();
 	}
@@ -244,20 +244,13 @@ public class ServerMain  {
 							clients.add(this.client);
 							clients.add(clientList.get(index));
 							registerObserver(chat, client);
-							
-							
-							//TODO: unregister both clients from their current server and update that server list
-							//updateServerClients(chatLobby);
+
 						}
 					}
 					
 					if(message.getCommand() == null){
 						System.out.println("Group message sent: " + message.getMessage());
-						ArrayList<String> messageList = new ArrayList<String>(Arrays.asList("",""));
-						messageList.set(1, message.getMessage());
-//						chat.setChange();
-						//TODO: find out what chat this client is currently in
-						notifyObservers(this.client.getChat(), messageList);
+						notifyObservers(this.client.getChat(), message.getMessage());
 					}
 				}
 			} catch (IOException e) {
@@ -296,6 +289,7 @@ public class ServerMain  {
 					System.out.println("Group message sent: " + message);
 					ArrayList<String> messageList = new ArrayList<String>(Arrays.asList("",""));
 					messageList.set(1, message);
+//					chat.setChange();
 					notifyObservers(chat, messageList);
 				}
 			}catch(IOException e){}
