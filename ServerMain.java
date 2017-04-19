@@ -9,11 +9,11 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Observable;
-import java.util.Observer;
+//import java.util.Observable;
+//import java.util.Observer;
 
 //TODO: change name
-public class ServerMain extends Observable {
+public class ServerMain  {
 	
 	//keeps track of which clients are involved in which chat
 	//TODO: migrate client lists to ServerObservable class
@@ -22,6 +22,7 @@ public class ServerMain extends Observable {
 	ServerObservable chatLobby;
 	static int clientNum;
 	int serverNum;
+	
 	
 	public static void main(String[] args) {
 		try {
@@ -72,6 +73,8 @@ public class ServerMain extends Observable {
 		for(int i = 0; i < clients.size(); i++){
 			clients.get(i).update(chat, data);
 		}
+		//TODO: change
+//		chat.clearChange();
 	}
 
 	@SuppressWarnings("resource")
@@ -209,6 +212,7 @@ public class ServerMain extends Observable {
 						updateServerClients(chatLobby);
 						System.out.println(events);
 						
+						Thread t = new Thread(new ChatHandler(chat, client));
 						System.out.println("added client to chat");
 					}
 				}
@@ -216,5 +220,38 @@ public class ServerMain extends Observable {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	//TODO: changed
+	//TODO: find a way to find out who sent the message
+	class ChatHandler implements Runnable{
+		private ArrayList<ClientObserver> clients;
+		private ServerObservable chat;
+		private BufferedReader reader;
+		
+		ChatHandler(ServerObservable chat, ClientObserver messageClient){
+			clients = events.get(chat);
+			Socket sock = messageClient.getClient();
+			try {
+				reader = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			String message;
+			try{
+				while((message = reader.readLine()) != null){
+					System.out.println("Group message sent: " + message);
+//					chat.setChange();
+					notifyObservers(chat, message);
+				}
+			}catch(IOException e){}
+			
+		}
+		
 	}
 }
