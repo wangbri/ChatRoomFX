@@ -41,6 +41,7 @@ public class ClientChatroomController implements Initializable {
 			@Override
 			public void handle(KeyEvent arg0) {
 				// TODO Auto-generated method stub
+				System.out.println("HERE2");
 				if (arg0.getCode() == KeyCode.ENTER) {
     				client.sendMessage(messageField.getText());
     				messageField.clear();
@@ -56,10 +57,12 @@ public class ClientChatroomController implements Initializable {
     	Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
-//				ObservableList<String> messages = FXCollections.observableArrayList(Arrays.asList(message));
-//				ObservableList<String> history = chatText.getItems();
-//				messages.addAll(history);
-//				chatText.setItems(messages);
+				System.out.println("here" + chatClients.getItems().toString());
+				ObservableList<String> messages = FXCollections.observableArrayList(Arrays.asList(message));
+				ObservableList<String> history = chatText.getItems();
+				System.out.println(history.toString());
+				messages.addAll(history);
+				chatText.setItems(messages);
 			}
     	});
     }

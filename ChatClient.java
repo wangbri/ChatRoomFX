@@ -69,8 +69,6 @@ public class ChatClient {
 	}
 	
 	public void sendMessage(String message) {
-		client.showChatroom(client.chatStage);
-		client.exitLobby();
 		ClientCommand cm = new ClientCommand(null, message, null);
 		writeCommand(cm);
 	}
@@ -97,7 +95,6 @@ public class ChatClient {
 			this.list = list;
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		public void run() {
 			ClientCommand message = null;
@@ -107,7 +104,7 @@ public class ChatClient {
 				synchronized(clientList) {
 					try {
 						while ((message = (ClientCommand) objectInput.readObject()) != null) {
-							System.out.println("from cc " + message.getMessage() + message.getList());
+							System.out.println("from cc " + message.getMessage() + " " + message.getCommand() + " " +  message.getList());
 							if (message.getCommand() == null && message.getList() == null) {
 								System.out.println("sent message");
 								client.updateChatMessage(message.getMessage());
