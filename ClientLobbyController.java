@@ -16,6 +16,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 
 public class ClientLobbyController implements Initializable {
@@ -44,13 +45,14 @@ public class ClientLobbyController implements Initializable {
     
     @Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
-//    	cm = new ContextMenu();
-//    	MenuItem cmItem1 = new MenuItem("Copy Image");
-//    	cmItem1.setOnAction(new EventHandler<ActionEvent>() {
-//    	    public void handle(ActionEvent e) {
-//    	        client.joinPrivateMessage(selectedClient);
-//    	    }
-//    	});
+    	cm = new ContextMenu();
+    	MenuItem cmItem1 = new MenuItem("Message..");
+    	cmItem1.setOnAction(new EventHandler<ActionEvent>() {
+    	    public void handle(ActionEvent e) {
+    	        client.joinPrivateMessage(selectedClient);
+    	    }
+    	});
+    	cm.getItems().add(cmItem1);
 
     	lobbyChats.setOnMouseClicked(new EventHandler<MouseEvent>() {
 
@@ -67,8 +69,8 @@ public class ClientLobbyController implements Initializable {
 			@Override
 			public void handle(MouseEvent arg0) {
 				// TODO Auto-generated method stub
-				if (arg0.isSecondaryButtonDown()) { // is right click
-					selectedClient = lobbyChats.getSelectionModel().getSelectedItem();
+				if (arg0.getButton() == MouseButton.SECONDARY) { // is right click
+					selectedClient = lobbyClients.getSelectionModel().getSelectedItem();
 					cm.show(lobbyClients, arg0.getScreenX(), arg0.getScreenY());
 				}
 			}
@@ -96,6 +98,7 @@ public class ClientLobbyController implements Initializable {
     public void updateLobbyChats(ObservableList<String> list) {
     	
     	Platform.runLater(new Runnable() {
+    		
 			@Override
 			public void run() {
 				lobbyChats.getItems().clear();
@@ -107,7 +110,7 @@ public class ClientLobbyController implements Initializable {
     
     public void updateLobbyClients(ObservableList<String> list) {
     	
-    	Platform.runLater(new Runnable() {
+    	Platform.runLater(new Runnable() {	
     		
 			@Override
 			public void run() {

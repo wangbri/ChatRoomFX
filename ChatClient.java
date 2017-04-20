@@ -61,11 +61,10 @@ public class ChatClient {
 	}
 	
 	public void joinChat(String chat) {
-		client.showChatroom(client.chatStage);
+		client.showChatroom(client.chatStage, false);
 		client.exitLobby();
 		ClientCommand cm = new ClientCommand("joinChat " + chat, null, null);
 		writeCommand(cm);
-//		chatReaderThread.start();
 	}
 	
 	public void sendMessage(String message) {
@@ -73,11 +72,12 @@ public class ChatClient {
 		writeCommand(cm);
 	}
 	
-	public void joinPrivateMessage(String client) {
-		ClientCommand cm = new ClientCommand("joinPrivateChat " + client, null, null);
+	public void joinPrivateMessage(String pClient) {
+		client.showChatroom(client.pChatStage, true);
+		ClientCommand cm = new ClientCommand("joinPrivateChat " + pClient, null, null);
 		writeCommand(cm);
 	}
-	
+
 	public void writeCommand(ClientCommand cm) {
 		try {
 			writer.writeObject(cm);
@@ -105,12 +105,18 @@ public class ChatClient {
 					try {
 						while ((message = (ClientCommand) objectInput.readObject()) != null) {
 							System.out.println("from cc " + message.getMessage() + " " + message.getCommand() + " " +  message.getList());
-							if (message.getCommand() == null && message.getList() == null) {
-								System.out.println("sent message");
+							if (message.getCommand() != null && message.getCommand().equals("groupChat")) {
+//								System.out.println("sent message");
 								client.updateChatMessage(message.getMessage());
+							} else if (message.getCommand() != null && message.getCommand().equals("privateChat")) {
+								client.updatePChatMessage(message.getMessage());
+							} else if (message.getCommand() != null && message.getCommand().equals("joiningPrivateChat")) {
+								client.joiningPrivateChat();
 							} else if (message.getList().get(0).contains("cClient") || message.getList().get(0).contains("cEmpty")) {
-								System.out.println("HERE");
+								System.out.println(message.getList().toString());
 								client.updateChatClientList(message.getList());
+							} else if (message.getList().get(0).contains("pClient") || message.getList().get(0).contains("pEmpty")) {
+								client.updatePChatClientList(message.getList());
 							} else if (message.getList().get(0).contains("Chat")) {
 								client.updateChatList(message.getList());
 							} else if (message.getList().get(0).contains("Client") || message.getList().get(0).equals("Empty")) {

@@ -19,6 +19,7 @@ import org.bson.Document;
 import org.junit.Assert;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
@@ -38,14 +39,22 @@ public class ClientMain extends Application {
 	public Stage chatStage;
 	public ObservableList<String> chatClientList = FXCollections.observableArrayList();
 	
+	// for private chats
+	public Stage pChatStage;
+	public ObservableList<String> pChatClientList = FXCollections.observableArrayList();
+	
 	public FXMLLoader loaderChatroom;
 	public ChatClient client;
 	
 	
 //	public Object chatLock = new Object();
-//	public Object clientLock = new Object();
+	public Object clientLock = new Object();
 	public ClientLobbyController lobbyController;
 	public ClientChatroomController chatController;
+	public ClientChatroomController pChatController;
+	
+	
+	boolean isShown = false;
 	
 	public static void main(String[] args) {
 		launch(args);
@@ -107,6 +116,7 @@ public class ClientMain extends Application {
 		}
 		
 		chatClientList = FXCollections.observableArrayList(list);
+		System.out.println(chatController);
 		chatController.updateClientList(chatClientList);
 	}
 	
@@ -114,19 +124,73 @@ public class ClientMain extends Application {
 		chatController.updateChat(message);
 	}
 	
+	
+	// called by ChatClient (private)
+	public void updatePChatClientList(ArrayList<String> list) {		
+		if (list.get(0).contains("pEmpty")) {
+			list.clear();
+		}
+		
+		for (int i = 0; i < list.size(); i++) {
+			list.set(i, list.get(i).substring(1, list.get(i).length()));
+		}
+		
+		if (!isShown) {
+			synchronized(clientLock) {
+				try {
+					clientLock.wait();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		pChatClientList = FXCollections.observableArrayList(list);
+		pChatController.updateClientList(pChatClientList);
+	}
+	
+	public void updatePChatMessage(String message) {
+		pChatController.updateChat(message);
+	}
+	
+	public void joiningPrivateChat() {
+		Platform.runLater(new Runnable() {
 
-	public void showChatroom(Stage chatStage) {
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				showChatroom(pChatStage, true);
+			}
+			
+		});	
+	}
+	
+	public void showChatroom(Stage chatStage, boolean isPrivate) {
 		try {
        	 	 loaderChatroom = new FXMLLoader(getClass().getResource("ClientChatroom.fxml"));
 	         chatStage.setScene(new Scene((BorderPane) loaderChatroom.load()));
-	         chatStage.setTitle("Chatroom");
-	         chatStage.show();
-       } catch (Exception ex) {
+		} catch (Exception ex) {
           Logger.getLogger(ClientMain.class.getName()).log(Level.SEVERE, null, ex);
-       }
+		}
+	
+		if (isPrivate) {
+			pChatController = loaderChatroom.<ClientChatroomController>getController();
+			pChatController.setClient(client);
+			chatStage.setTitle("Private Chatroom");
+		} else {
+			chatController = loaderChatroom.<ClientChatroomController>getController();
+			chatController.setClient(client);
+			chatStage.setTitle("Group Chatroom");
+		}
 		
-		chatController = loaderChatroom.<ClientChatroomController>getController();
-        chatController.setClient(client);
+		chatStage.show();
+		
+		synchronized(clientLock) {
+			clientLock.notify();
+		}
+
+		isShown = true;
 	}
 	
 	public void exitLobby() {
@@ -138,6 +202,7 @@ public class ClientMain extends Application {
 		
 		lobbyStage = new Stage();
 		chatStage = new Stage();
+		pChatStage = new Stage();
 		
         try {
         	 loaderLobby = new FXMLLoader(getClass().getResource("ClientLobby.fxml"));
