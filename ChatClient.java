@@ -40,7 +40,8 @@ public class ChatClient {
 	@SuppressWarnings("resource")
 	private void setUpNetworking() throws Exception {		
 		// establish connection with server
-		Socket sock = new Socket("127.0.0.1", 4242);
+//		Socket sock = new Socket("128.62.37.95", 4242); //127.0.0.1
+		Socket sock = new Socket("192.168.184.1", 60784);
 		
 		objectInput = new ObjectInputStream(sock.getInputStream());
 		
@@ -105,8 +106,8 @@ public class ChatClient {
 					try {
 						while ((message = (ClientCommand) objectInput.readObject()) != null) {
 							System.out.println("from cc " + message.getMessage() + " " + message.getCommand() + " " +  message.getList());
+							
 							if (message.getCommand() != null && message.getCommand().equals("groupChat")) {
-//								System.out.println("sent message");
 								client.updateChatMessage(message.getMessage());
 							} else if (message.getCommand() != null && message.getCommand().equals("privateChat")) {
 								client.updatePChatMessage(message.getMessage());

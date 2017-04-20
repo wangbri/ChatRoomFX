@@ -6,6 +6,8 @@ import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -85,8 +87,13 @@ public class ServerMain  {
 	private void setUpNetworking() throws Exception {
 		// initial port for clients to connect
 		serverNum = 0;
-		ServerSocket serverSock = new ServerSocket(4242);
+		String addr = "192.168.184.1"; // router: 192.168.184.1
 		
+//		InetSocketAddress addr = new InetSocketAddress("10.145.81.93", 4242);
+		InetAddress ip = InetAddress.getByName(addr);
+		System.out.println(ip.getHostName());
+//		serverSock.bind(addr);
+		ServerSocket serverSock = new ServerSocket(60784, 2, ip); //60784
 		// create lobby for chat
 		chatLobby = new ServerObservable(serverNum);
 		ArrayList<ClientObserver> clientsLobby = new ArrayList<ClientObserver>();
