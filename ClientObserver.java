@@ -14,7 +14,7 @@ public class ClientObserver {
 	private int clientNum;
 	private Socket socket;
 	private ObjectOutputStream obj;
-	private ArrayList<ServerObservable> chat;
+	private ArrayList<ServerObservable> chat = new ArrayList<ServerObservable>();
 	
 	public ClientObserver(int clientNum, Socket socket, ObjectOutputStream obj, ServerObservable chat) {
 		//super(out);

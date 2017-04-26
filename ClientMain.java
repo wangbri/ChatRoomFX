@@ -203,6 +203,7 @@ public class ClientMain extends Application {
 					@Override
 					public void run() {
 						// TODO Auto-generated method stub
+						System.out.println("closing chat");
 						client.exitChat("Chat 0");
 					}
 					

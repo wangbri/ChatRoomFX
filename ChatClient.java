@@ -18,6 +18,7 @@ public class ChatClient {
 	
 	public boolean isChatFinished = false;
 	public boolean isClientFinished = false;
+	public boolean threadStopped = false;
 	
 	public ClientMain client;
 	
@@ -83,6 +84,7 @@ public class ChatClient {
 		cm.setCommand("exitChat");
 		cm.setMessage(chat);
 		writeCommand(cm);
+		threadStopped = true;
 	}
 
 	public void writeCommand(ChatPacket cm) {
@@ -110,7 +112,7 @@ public class ChatClient {
 			while (true) {
 				synchronized(clientList) {
 					try {
-						while ((message = (ChatPacket) objectInput.readObject()) != null) {
+						while ((!threadStopped && (message = (ChatPacket) objectInput.readObject()) != null)) {
 							System.out.println("from cc " + message.getMessage() + " " + message.getCommand() + " " +  message.getList());
 
 							switch (message.getCommand()) {

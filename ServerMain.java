@@ -266,8 +266,9 @@ public class ServerMain  {
 					//TODO: Exit Chat
 					}else if(message.getCommand().equals("exitChat")){
 						//close socket if it is a lobby 
-						if(message.getCommand().equals("Chat 0")){
+						if(message.getMessage().equals("Chat 0")){
 							this.client.getSocket().close();
+							System.out.println("CLOSING SOCKET");
 						}
 					}
 				}
