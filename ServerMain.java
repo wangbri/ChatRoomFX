@@ -224,10 +224,10 @@ public class ServerMain  {
 						registerObserver(chat, client);
 						updateServerClients(chatLobby);
 						
-					} else if(message.getCommand().contains("joinPrivateChat ")) { // 
+					} else if(message.getCommand().contains("joinPrivateChat ")) { // join existing private chat
 						boolean chatExists = false;
-						
 						int chatIndex = 0;
+						
 						for(int i = 0; i < clientList.size(); i++){
 							if(clientList.get(i).toString().contains(message.getCommand().substring(16, message.getCommand().length()))){
 								chatExists = true;
