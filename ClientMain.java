@@ -22,10 +22,12 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 
 public class ClientMain extends Application {
@@ -191,6 +193,24 @@ public class ClientMain extends Application {
 		chatStage = new Stage();
 		pChatStage = new Stage();
 		
+		lobbyStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+
+			@Override
+			public void handle(WindowEvent event) {
+				// TODO Auto-generated method stub
+				Platform.runLater(new Runnable() {
+
+					@Override
+					public void run() {
+						// TODO Auto-generated method stub
+						client.exitChat("Chat 0");
+					}
+					
+				});
+			}
+			
+		});
+		
         try {
         	 loaderLobby = new FXMLLoader(getClass().getResource("ClientLobby.fxml"));
 	         lobbyStage.setScene(new Scene((BorderPane) loaderLobby.load()));
@@ -204,12 +224,6 @@ public class ClientMain extends Application {
         
         lobbyController = loaderLobby.<ClientLobbyController>getController();
         lobbyController.setClient(client);
-        
-        
-        
-        
-         
-        System.out.println("end");
     }
 	
 

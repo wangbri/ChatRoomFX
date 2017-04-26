@@ -59,8 +59,9 @@ public class ChatClient {
 	
 	public void joinChat(String chat) {
 		client.showChatroom(client.chatStage, false);
-		client.exitLobby();
-		ChatPacket cm = new ChatPacket("joinChat " + chat);
+		//client.exitLobby();
+		ChatPacket cm = new ChatPacket("joinChat");
+		cm.setMessage(chat);
 		writeCommand(cm);
 	}
 	
@@ -70,9 +71,17 @@ public class ChatClient {
 		writeCommand(cm);
 	}
 	
-	public void joinPrivateMessage(String pClient) {
+	public void joinPrivateChat(String pClient) {
 		client.showChatroom(client.pChatStage, true);
-		ChatPacket cm = new ChatPacket("joinPrivateChat " + pClient);
+		ChatPacket cm = new ChatPacket("joinPrivateChat");
+		cm.setMessage(pClient);
+		writeCommand(cm);
+	}
+	
+	public void exitChat(String chat) {
+		ChatPacket cm = new ChatPacket();
+		cm.setCommand("exitChat");
+		cm.setMessage(chat);
 		writeCommand(cm);
 	}
 

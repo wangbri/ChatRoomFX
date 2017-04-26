@@ -46,13 +46,15 @@ public class ClientLobbyController implements Initializable {
     @Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
     	cm = new ContextMenu();
-    	MenuItem cmItem1 = new MenuItem("Message..");
-    	cmItem1.setOnAction(new EventHandler<ActionEvent>() {
+    	
+    	MenuItem cmItem = new MenuItem("Message..");
+    	cmItem.setOnAction(new EventHandler<ActionEvent>() {
     	    public void handle(ActionEvent e) {
-    	        client.joinPrivateMessage(selectedClient);
+    	        client.joinPrivateChat(selectedClient);
     	    }
     	});
-    	cm.getItems().add(cmItem1);
+    	
+    	cm.getItems().add(cmItem);
 
     	lobbyChats.setOnMouseClicked(new EventHandler<MouseEvent>() {
 
