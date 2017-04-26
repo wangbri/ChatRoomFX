@@ -9,16 +9,6 @@ public class ServerObservable {
 		this.chatNum = chatNum;
 	}
 	
-//	//TODO: changed
-//	public void setChange(){
-//		hasChanged = true;
-//	}
-//	
-//	public void clearChange(){
-//		hasChanged = false;
-//	}
-//	////////////////
-	
 	public String toString() {
 		return "Chat " + chatNum;
 	}
