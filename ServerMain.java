@@ -55,7 +55,7 @@ public class ServerMain  {
 		if(events.containsKey(chat)){	
 			int index = events.get(chat).indexOf(client);
 			
-			// when there are no more clients left in the chat
+			// if there are still clients left in the chat
 			if (!events.get(chat).isEmpty()) {
 				events.get(chat).remove(index);
 			}
@@ -79,8 +79,8 @@ public class ServerMain  {
 		
 		// initial port for clients to connect
 		serverNum = 0;
-//		String addr = "169.254.61.84"; // router: 192.168.184.1
-		String addr = "localhost";
+		// String addr = "169.254.61.84"; // router: 192.168.184.1
+		String addr = "localhost"; //name of the ip address
 		
 		InetAddress ip = InetAddress.getByName(addr);
 		ServerSocket serverSock = new ServerSocket(4242, 10, ip); //60784
@@ -140,6 +140,7 @@ public class ServerMain  {
 			for (ClientObserver w : clientList) {
 				w.update(chat, cmd);
 			}
+		//else update it with clients in the chat
 		} else {
 			for (ClientObserver w : events.get(chat)) {
 				w.update(chat, cmd);
@@ -150,6 +151,7 @@ public class ServerMain  {
 	public void updateServerChats(ServerObservable chat) {
 		ArrayList<String> chats = new ArrayList<String>();
 		
+		//look through the list of the chats and update the list in the lobby
 		for (ServerObservable s : events.keySet()) {
 			if (!s.isPrivate) {
 				chats.add(s.toString());
@@ -190,15 +192,18 @@ public class ServerMain  {
 			ChatPacket message;
 			
 			try {
-				while ((message = (ChatPacket)objectInput.readObject()) != null) { 
+				while ((message = (ChatPacket)objectInput.readObject()) != null) {
+					//if the data is a message being transmitted
 					if(message.getCommand() == null){
-						if (!client.getChat().isPrivate) { // determine whether chat is group/private
+						//determine the nature of the chat
+						if (!client.getChat().isPrivate) {
 							message.setCommand("groupChat");
 						} else {
 							message.setCommand("privateChat");
 						}
 						
 						notifyObservers(this.client.getChat(), message);
+
 						System.out.println("GROUP MSG SENT: " + message.getMessage());
 						
 					} else if (message.getCommand().equals("startChat") && events.get(chatLobby).contains(client)) { // starting new chat			
@@ -213,6 +218,7 @@ public class ServerMain  {
 					} else if (message.getCommand().contains("joinChat ") && events.get(chatLobby).contains(client)) { // joining existing chat
 						ServerObservable chat = null;
 						
+						//look for the chat in the events HashMap 
 						for (ServerObservable s : events.keySet()) {
 							if (s.toString().equals(message.getCommand().substring(9, message.getCommand().length()))) {
 								chat = s;
@@ -220,6 +226,7 @@ public class ServerMain  {
 							}
 						}
 						
+						//TODO: take out this line to allow multiple chats for one client 
 						unregisterObserver(chatLobby, client);
 						registerObserver(chat, client);
 						updateServerClients(chatLobby);
@@ -235,7 +242,7 @@ public class ServerMain  {
 								break;
 							}
 						}
-						
+
 						if(chatExists){
 							ChatPacket cm = new ChatPacket("joiningPrivateChat");
 							ArrayList<ClientObserver> clients = new ArrayList<ClientObserver>();

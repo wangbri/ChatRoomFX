@@ -8,21 +8,11 @@ public class ServerObservable {
 	public ServerObservable(int chatNum) {
 		this.chatNum = chatNum;
 	}
-	
+
 	public void setPrivate() {
 		this.isPrivate = true;
 	}
-	
-//	//TODO: changed
-//	public void setChange(){
-//		hasChanged = true;
-//	}
-//	
-//	public void clearChange(){
-//		hasChanged = false;
-//	}
-//	////////////////
-	
+
 	public String toString() {
 		return "Chat " + chatNum;
 	}
