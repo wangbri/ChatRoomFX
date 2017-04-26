@@ -7,21 +7,18 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 public class ChatClient {
-//	private JTextArea incoming;
-//	private JTextField outgoing;
-	private BufferedReader reader;
 	public ObjectOutputStream writer;
+	public ObjectInputStream objectInput;
+	
 	public Thread clientReaderThread;
 	public Thread chatReaderThread;
-	public Object clientLock = new Object();
-	public Object chatLock = new Object();
+	
 	public ObservableList<String> clientList = FXCollections.observableArrayList();
 	public ObservableList<String> chatList = FXCollections.observableArrayList();
 	
-	public ObjectInputStream objectInput;
-	
 	public boolean isChatFinished = false;
 	public boolean isClientFinished = false;
+	
 	public ClientMain client;
 	
 	public ChatClient(ClientMain client) {
@@ -56,25 +53,26 @@ public class ChatClient {
 	}
 	
 	public void addChat() {
-		ChatPacket cm = new ChatPacket("startChat", null, null);
+		ChatPacket cm = new ChatPacket("startChat");
 		writeCommand(cm);
 	}
 	
 	public void joinChat(String chat) {
 		client.showChatroom(client.chatStage, false);
 		client.exitLobby();
-		ChatPacket cm = new ChatPacket("joinChat " + chat, null, null);
+		ChatPacket cm = new ChatPacket("joinChat " + chat);
 		writeCommand(cm);
 	}
 	
 	public void sendMessage(String message) {
-		ChatPacket cm = new ChatPacket(null, message, null);
+		ChatPacket cm = new ChatPacket();
+		cm.setMessage(message);
 		writeCommand(cm);
 	}
 	
 	public void joinPrivateMessage(String pClient) {
 		client.showChatroom(client.pChatStage, true);
-		ChatPacket cm = new ChatPacket("joinPrivateChat " + pClient, null, null);
+		ChatPacket cm = new ChatPacket("joinPrivateChat " + pClient);
 		writeCommand(cm);
 	}
 
@@ -105,22 +103,29 @@ public class ChatClient {
 					try {
 						while ((message = (ChatPacket) objectInput.readObject()) != null) {
 							System.out.println("from cc " + message.getMessage() + " " + message.getCommand() + " " +  message.getList());
-							
-							if (message.getCommand() != null && message.getCommand().equals("groupChat")) {
-								client.updateChatMessage(message.getMessage());
-							} else if (message.getCommand() != null && message.getCommand().equals("privateChat")) {
-								client.updatePChatMessage(message.getMessage());
-							} else if (message.getCommand() != null && message.getCommand().equals("joiningPrivateChat")) {
-								client.joiningPrivateChat();
-							} else if (message.getList().get(0).contains("cClient") || message.getList().get(0).contains("cEmpty")) {
-								System.out.println(message.getList().toString());
-								client.updateChatClientList(message.getList());
-							} else if (message.getList().get(0).contains("pClient") || message.getList().get(0).contains("pEmpty")) {
-								client.updatePChatClientList(message.getList());
-							} else if (message.getList().get(0).contains("Chat")) {
-								client.updateChatList(message.getList());
-							} else if (message.getList().get(0).contains("Client") || message.getList().get(0).equals("Empty")) {
-								client.updateClientList(message.getList());
+
+							switch (message.getCommand()) {
+								case "groupChat":
+									client.updateChatMessage(message.getMessage());
+									break;
+								case "privateChat":
+									client.updatePChatMessage(message.getMessage());
+									break;
+								case "joiningPrivateChat":
+									client.joiningPrivateChat();
+									break;
+								case "updateGroupClients":
+									client.updateChatClientList(message.getList());
+									break;
+								case "updatePrivateClients":
+									client.updatePChatClientList(message.getList());
+									break;
+								case "updateLobbyChats":
+									client.updateChatList(message.getList());
+									break;
+								case "updateLobbyClients":
+									client.updateClientList(message.getList());
+									break;
 							}
 						}
 					} catch (ClassNotFoundException e) {

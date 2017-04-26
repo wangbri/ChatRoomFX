@@ -102,14 +102,10 @@ public class ClientMain extends Application {
 	}
 	
 	public void updateChatClientList(ArrayList<String> list) {		
-		if (list.get(0).contains("cEmpty")) {
+		if (list.get(0).equals("")) {
 			list.clear();
 		}
-		
-		for (int i = 0; i < list.size(); i++) {
-			list.set(i, list.get(i).substring(1, list.get(i).length()));
-		}
-		
+
 		chatClientList = FXCollections.observableArrayList(list);
 		System.out.println(chatController);
 		chatController.updateClientList(chatClientList);
@@ -122,12 +118,8 @@ public class ClientMain extends Application {
 	
 	// called by ChatClient (private)
 	public void updatePChatClientList(ArrayList<String> list) {		
-		if (list.get(0).contains("pEmpty")) {
+		if (list.get(0).equals("")) {
 			list.clear();
-		}
-		
-		for (int i = 0; i < list.size(); i++) {
-			list.set(i, list.get(i).substring(1, list.get(i).length()));
 		}
 		
 		if (!isShown) {

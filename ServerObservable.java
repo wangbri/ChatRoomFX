@@ -8,7 +8,11 @@ public class ServerObservable {
 	public ServerObservable(int chatNum) {
 		this.chatNum = chatNum;
 	}
-	
+
+	public void setPrivate() {
+		this.isPrivate = true;
+	}
+
 	public String toString() {
 		return "Chat " + chatNum;
 	}
