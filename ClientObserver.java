@@ -8,35 +8,45 @@ import java.io.PrintWriter;
 //import java.util.Observable;
 //import java.util.Observer;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class ClientObserver {
 	private int clientNum;
-	private Socket client;
+	private Socket socket;
 	private ObjectOutputStream obj;
-	private ServerObservable chat;
+	private ArrayList<ServerObservable> chat;
 	
-	public ClientObserver(int clientNum, Socket client, ObjectOutputStream obj, ServerObservable chat) {
+	public ClientObserver(int clientNum, Socket socket, ObjectOutputStream obj, ServerObservable chat) {
 		//super(out);
 		this.clientNum = clientNum;
-		this.client = client;
+		this.socket = socket;
 		this.obj = obj;
-		this.chat = chat;
+		this.chat.add(chat);
 	}
 
-	public ServerObservable getChat() {
-		return chat;
+	public ServerObservable getChat(String ChatName) {
+		for(int i = 0; i <chat.size(); i++){
+			if((chat.get(i)).equals(ChatName)){
+				return chat.get(i);
+			}
+		}
+		return null;
 	}
 
 	public void setChat(ServerObservable chat) {
-		this.chat = chat;
+		this.chat.add(chat);
+	}
+
+	public void setSocket(Socket socket) {
+		this.socket = socket;
 	}
 
 	public int getClientNum() {
 		return clientNum;
 	}
 
-	public Socket getClient() {
-		return client;
+	public Socket getSocket() {
+		return socket;
 	}
 
 	public void update(ServerObservable o, Object arg) {

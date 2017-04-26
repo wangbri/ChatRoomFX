@@ -10,6 +10,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
+
+//TODO: closing port if in lobby
+
 //TODO: change name
 public class ServerMain  {
 	
@@ -196,13 +199,13 @@ public class ServerMain  {
 					//if the data is a message being transmitted
 					if(message.getCommand() == null){
 						//determine the nature of the chat
-						if (!client.getChat().isPrivate) {
+						if (!client.getChat(message.getMessage()).isPrivate) {
 							message.setCommand("groupChat");
 						} else {
 							message.setCommand("privateChat");
 						}
 						
-						notifyObservers(this.client.getChat(), message);
+						notifyObservers(this.client.getChat(message.getMessage()), message);
 
 						System.out.println("GROUP MSG SENT: " + message.getMessage());
 						
@@ -220,14 +223,14 @@ public class ServerMain  {
 						
 						//look for the chat in the events HashMap 
 						for (ServerObservable s : events.keySet()) {
-							if (s.toString().equals(message.getCommand().substring(9, message.getCommand().length()))) {
+							if (s.toString().equals(message.getMessage())) {
 								chat = s;
 								break;
 							}
 						}
 						
 						//TODO: take out this line to allow multiple chats for one client 
-						unregisterObserver(chatLobby, client);
+//						unregisterObserver(chatLobby, client);
 						registerObserver(chat, client);
 						updateServerClients(chatLobby);
 						
@@ -236,7 +239,7 @@ public class ServerMain  {
 						int chatIndex = 0;
 						
 						for(int i = 0; i < clientList.size(); i++){
-							if(clientList.get(i).toString().contains(message.getCommand().substring(16, message.getCommand().length()))){
+							if(clientList.get(i).toString().contains(message.getMessage())){
 								chatExists = true;
 								chatIndex = i;
 								break;
@@ -259,7 +262,14 @@ public class ServerMain  {
 							events.put(chat, clients);
 							updateServerClients(chat);
 						}
-					}	
+					
+					//TODO: Exit Chat
+					}else if(message.getCommand().equals("exitChat")){
+						//close socket if it is a lobby 
+						if(message.getCommand().equals("Chat 0")){
+							this.client.getSocket().close();
+						}
+					}
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
