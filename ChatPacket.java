@@ -8,10 +8,12 @@ public class ChatPacket implements Serializable {
 	private String message;
 	private ArrayList<String> list;
 	
-	public ChatPacket(String command, String message, ArrayList<String> list) {
+	public ChatPacket() {
+		
+	}
+	
+	public ChatPacket(String command) {
 		this.command = command;
-		this.message = message;
-		this.list = list;
 	}
 
 	public ArrayList<String> getList() {

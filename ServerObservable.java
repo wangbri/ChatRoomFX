@@ -9,6 +9,10 @@ public class ServerObservable {
 		this.chatNum = chatNum;
 	}
 	
+	public void setPrivate() {
+		this.isPrivate = true;
+	}
+	
 //	//TODO: changed
 //	public void setChange(){
 //		hasChanged = true;
