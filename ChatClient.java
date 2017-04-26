@@ -40,13 +40,12 @@ public class ChatClient {
 	@SuppressWarnings("resource")
 	private void setUpNetworking() throws Exception {		
 		// establish connection with server
-//		Socket sock = new Socket("128.62.37.95", 4242); //127.0.0.1
-		Socket sock = new Socket("192.168.184.1", 60784);
+//		Socket sock = new Socket("169.254.61.84", 4242);
+		Socket sock = new Socket("localhost", 4242);
 		
 		objectInput = new ObjectInputStream(sock.getInputStream());
 		
 		// writes output to socket from client -> server
-//		writer = new PrintWriter(sock.getOutputStream());	
 		writer = new ObjectOutputStream(sock.getOutputStream());
 		
 		// reads input from socket from server -> client
@@ -57,29 +56,29 @@ public class ChatClient {
 	}
 	
 	public void addChat() {
-		ClientCommand cm = new ClientCommand("startChat", null, null);
+		ChatPacket cm = new ChatPacket("startChat", null, null);
 		writeCommand(cm);
 	}
 	
 	public void joinChat(String chat) {
 		client.showChatroom(client.chatStage, false);
 		client.exitLobby();
-		ClientCommand cm = new ClientCommand("joinChat " + chat, null, null);
+		ChatPacket cm = new ChatPacket("joinChat " + chat, null, null);
 		writeCommand(cm);
 	}
 	
 	public void sendMessage(String message) {
-		ClientCommand cm = new ClientCommand(null, message, null);
+		ChatPacket cm = new ChatPacket(null, message, null);
 		writeCommand(cm);
 	}
 	
 	public void joinPrivateMessage(String pClient) {
 		client.showChatroom(client.pChatStage, true);
-		ClientCommand cm = new ClientCommand("joinPrivateChat " + pClient, null, null);
+		ChatPacket cm = new ChatPacket("joinPrivateChat " + pClient, null, null);
 		writeCommand(cm);
 	}
 
-	public void writeCommand(ClientCommand cm) {
+	public void writeCommand(ChatPacket cm) {
 		try {
 			writer.writeObject(cm);
 			writer.reset();
@@ -98,13 +97,13 @@ public class ChatClient {
 
 		@Override
 		public void run() {
-			ClientCommand message = null;
+			ChatPacket message = null;
 			
 			// TODO Auto-generated method stub
 			while (true) {
 				synchronized(clientList) {
 					try {
-						while ((message = (ClientCommand) objectInput.readObject()) != null) {
+						while ((message = (ChatPacket) objectInput.readObject()) != null) {
 							System.out.println("from cc " + message.getMessage() + " " + message.getCommand() + " " +  message.getList());
 							
 							if (message.getCommand() != null && message.getCommand().equals("groupChat")) {

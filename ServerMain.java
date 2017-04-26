@@ -1,20 +1,13 @@
 package assignment7;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-//import java.util.Observable;
-//import java.util.Observer;
 
 //TODO: change name
 public class ServerMain  {
@@ -27,8 +20,7 @@ public class ServerMain  {
 	Object lock = new Object();
 	static int clientNum;
 	int serverNum;
-	
-	
+		
 	public static void main(String[] args) {
 		try {
 			//TODO: change name 
@@ -73,7 +65,7 @@ public class ServerMain  {
 	 * Notify when something changes in the specific chat
 	 * @param chat: the chat that changed
 	 */
-	public void notifyObservers(ServerObservable chat, ClientCommand data){
+	public void notifyObservers(ServerObservable chat, ChatPacket data){
 		ArrayList<ClientObserver> clients = events.get(chat);
 		
 		for(int i = 0; i < clients.size(); i++){
@@ -87,13 +79,13 @@ public class ServerMain  {
 	private void setUpNetworking() throws Exception {
 		// initial port for clients to connect
 		serverNum = 0;
-		String addr = "192.168.184.1"; // router: 192.168.184.1
+//		String addr = "169.254.61.84"; // router: 192.168.184.1
+		String addr = "localhost";
 		
-//		InetSocketAddress addr = new InetSocketAddress("10.145.81.93", 4242);
 		InetAddress ip = InetAddress.getByName(addr);
 		System.out.println(ip.getHostName());
-//		serverSock.bind(addr);
-		ServerSocket serverSock = new ServerSocket(60784, 2, ip); //60784
+		ServerSocket serverSock = new ServerSocket(4242, 10, ip); //60784
+		
 		// create lobby for chat
 		chatLobby = new ServerObservable(serverNum);
 		ArrayList<ClientObserver> clientsLobby = new ArrayList<ClientObserver>();
@@ -144,7 +136,7 @@ public class ServerMain  {
 			}
 		}
 		
-		ClientCommand cmd = new ClientCommand(null, null, clients);
+		ChatPacket cmd = new ChatPacket(null, null, clients);
 		
 		System.out.println("at update cc " + clients);
 		System.out.println(events);
@@ -171,7 +163,7 @@ public class ServerMain  {
 		
 		chats.remove(chats.indexOf("Chat 0")); // don't display lobby in lobby chat list
 		
-		ClientCommand cmd = new ClientCommand(null, null, chats);
+		ChatPacket cmd = new ChatPacket(null, null, chats);
 		
 		if (!chats.isEmpty()) {
 			for (ClientObserver w : events.get(chatLobby)) {
@@ -198,10 +190,10 @@ public class ServerMain  {
 		}
 
 		public void run() {
-			ClientCommand message;
+			ChatPacket message;
 			
 			try {
-				while ((message = (ClientCommand)objectInput.readObject()) != null) {
+				while ((message = (ChatPacket)objectInput.readObject()) != null) {
 					if(message.getCommand() == null){
 						if (!client.getChat().isPrivate) {
 							message.setCommand("groupChat");
@@ -246,7 +238,7 @@ public class ServerMain  {
 						}
 						
 						if(exist){
-							ClientCommand cm = new ClientCommand("joiningPrivateChat", null, null);
+							ChatPacket cm = new ChatPacket("joiningPrivateChat", null, null);
 							clientList.get(index).update(null, cm);
 							ServerObservable chat = new ServerObservable(++serverNum);
 							chat.isPrivate = true;
@@ -257,20 +249,13 @@ public class ServerMain  {
 							clientList.get(index).setChat(chat);
 							this.client.setChat(chat);
 							
-							
-							
-							
-							
-							
 							System.out.println(chat.toString() + this.client.toString());
 							events.put(chat, clients);
 							updateServerClients(chat);
 //							registerObserver(chat, this.client);
 //							registerObserver(chat, clientList.get(index));
 						}
-					}
-					
-					
+					}	
 				}
 			} catch (IOException e) {
 				e.printStackTrace();

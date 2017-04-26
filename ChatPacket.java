@@ -3,12 +3,12 @@ package assignment7;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class ClientCommand implements Serializable {
+public class ChatPacket implements Serializable {
 	private String command;
 	private String message;
 	private ArrayList<String> list;
 	
-	public ClientCommand(String command, String message, ArrayList<String> list) {
+	public ChatPacket(String command, String message, ArrayList<String> list) {
 		this.command = command;
 		this.message = message;
 		this.list = list;

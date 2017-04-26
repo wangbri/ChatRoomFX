@@ -61,36 +61,29 @@ public class ClientMain extends Application {
 	public static void main(String[] args) {
 		launch(args);
 		
-		MongoClient mongoClient = new MongoClient(new MongoClientURI("mongodb://admin:pass@ds033066.mlab.com:33066/chatfx"));
-//		MongoClient mongoClient = new MongoClient();
-		
-		MongoDatabase database = mongoClient.getDatabase("chatfx");
-		if (database.getCollection("mynewcollection") != null) {
-			database.getCollection("mynewcollection").drop();
-		}
-		
-//		database.createCollection("testCollection");
-		MongoCollection collection = (MongoCollection) database.getCollection("mynewcollection");
-		
-		List<Integer> books = Arrays.asList(27464, 747854);
-		Document person = new Document("_id", "jo")
-		                            .append("name", "Jo Bloggs")
-		                            .append("address", new BasicDBObject("street", "123 Fake St")
-		                                                         .append("city", "Faketon")
-		                                                         .append("state", "MA")
-		                                                         .append("zip", 12345))
-		                            .append("books", books);
-		
-		
-		collection.insertOne(person);
-		
-		
-		
-		
-		
-		
-		
-		mongoClient.close();
+//		MongoClient mongoClient = new MongoClient(new MongoClientURI("mongodb://admin:pass@ds033066.mlab.com:33066/chatfx"));
+////		MongoClient mongoClient = new MongoClient();
+//		
+//		MongoDatabase database = mongoClient.getDatabase("chatfx");
+//		if (database.getCollection("mynewcollection") != null) {
+//			database.getCollection("mynewcollection").drop();
+//		}
+//		
+////		database.createCollection("testCollection");
+//		MongoCollection collection = (MongoCollection) database.getCollection("mynewcollection");
+//		
+//		List<Integer> books = Arrays.asList(27464, 747854);
+//		Document person = new Document("_id", "jo")
+//		                            .append("name", "Jo Bloggs")
+//		                            .append("address", new BasicDBObject("street", "123 Fake St")
+//		                                                         .append("city", "Faketon")
+//		                                                         .append("state", "MA")
+//		                                                         .append("zip", 12345))
+//		                            .append("books", books);
+//		
+//		
+//		collection.insertOne(person);
+//		mongoClient.close();
 	}
 	
 	// called by ChatClient
