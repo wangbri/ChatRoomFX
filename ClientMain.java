@@ -53,7 +53,7 @@ public class ClientMain extends Application {
 	public Object clientLock = new Object();
 	public ClientLobbyController lobbyController;
 	public ClientChatroomController chatController;
-	public ClientChatroomController pChatController;
+	public ClientChatroomController privateChatController;
 	
 	public int clientNum = 0;
 	
@@ -90,7 +90,7 @@ public class ClientMain extends Application {
 	
 	// called by ChatClient
 	public void updateClientList(ArrayList<String> list) {
-		if (list.get(0).contains("Empty")) {
+		if (list.get(0).contains("")) {
 			list.clear();
 		}
 		
@@ -103,7 +103,7 @@ public class ClientMain extends Application {
 		lobbyController.updateLobbyChats(chatList);
 	}
 	
-	public void updateChatClientList(ArrayList<String> list) {		
+	public void updateChatClients(ArrayList<String> list) {		
 		if (list.get(0).equals("")) {
 			list.clear();
 		}
@@ -113,13 +113,13 @@ public class ClientMain extends Application {
 		chatController.updateClientList(chatClientList);
 	}
 	
-	public void updateChatMessage(String message) {
+	public void updateChat(String message) {
 		chatController.updateChat(message);
 	}
 	
 	
 	// called by ChatClient (private)
-	public void updatePChatClientList(ArrayList<String> list) {		
+	public void updatePrivateChatClients(ArrayList<String> list) {		
 		if (list.get(0).equals("")) {
 			list.clear();
 		}
@@ -136,11 +136,11 @@ public class ClientMain extends Application {
 		}
 		
 		pChatClientList = FXCollections.observableArrayList(list);
-		pChatController.updateClientList(pChatClientList);
+		privateChatController.updateClientList(pChatClientList);
 	}
 	
-	public void updatePChatMessage(String message) {
-		pChatController.updateChat(message);
+	public void updatePrivateChat(String message) {
+		privateChatController.updateChat(message);
 	}
 	
 	public void joiningPrivateChat() {
@@ -164,8 +164,8 @@ public class ClientMain extends Application {
 		}
 	
 		if (isPrivate) {
-			pChatController = loaderChatroom.<ClientChatroomController>getController();
-			pChatController.setClient(client);
+			privateChatController = loaderChatroom.<ClientChatroomController>getController();
+			privateChatController.setClient(client);
 			chatStage.setTitle("Private Chatroom");
 		} else {
 			chatController = loaderChatroom.<ClientChatroomController>getController();
@@ -205,11 +205,9 @@ public class ClientMain extends Application {
 						// TODO Auto-generated method stub
 						System.out.println("closing chat");
 						client.exitChat("Chat 0");
-					}
-					
+					}	
 				});
 			}
-			
 		});
 		
         try {

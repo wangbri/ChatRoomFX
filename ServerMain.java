@@ -197,7 +197,7 @@ public class ServerMain  {
 			try {
 				while ((message = (ChatPacket)objectInput.readObject()) != null) {
 					//if the data is a message being transmitted
-					if(message.getCommand() == null){
+					if(message.getCommand().equals("sendMessage")){
 						//determine the nature of the chat
 						if (!client.getChat(message.getMessage()).isPrivate) {
 							message.setCommand("groupChat");
@@ -218,7 +218,7 @@ public class ServerMain  {
 						
 						System.out.println("ADDED CHAT");
 						
-					} else if (message.getCommand().contains("joinChat ") && events.get(chatLobby).contains(client)) { // joining existing chat
+					} else if (message.getCommand().contains("joinChat") && events.get(chatLobby).contains(client)) { // joining existing chat
 						ServerObservable chat = null;
 						
 						//look for the chat in the events HashMap 
@@ -234,7 +234,7 @@ public class ServerMain  {
 						registerObserver(chat, client);
 						updateServerClients(chatLobby);
 						
-					} else if(message.getCommand().contains("joinPrivateChat ")) { // join existing private chat
+					} else if(message.getCommand().contains("joinPrivateChat")) { // join existing private chat
 						boolean chatExists = false;
 						int chatIndex = 0;
 						

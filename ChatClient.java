@@ -67,7 +67,7 @@ public class ChatClient {
 	}
 	
 	public void sendMessage(String message) {
-		ChatPacket cm = new ChatPacket();
+		ChatPacket cm = new ChatPacket("sendMessage");
 		cm.setMessage(message);
 		writeCommand(cm);
 	}
@@ -117,19 +117,19 @@ public class ChatClient {
 
 							switch (message.getCommand()) {
 								case "groupChat":
-									client.updateChatMessage(message.getMessage());
+									client.updateChat(message.getMessage());
 									break;
 								case "privateChat":
-									client.updatePChatMessage(message.getMessage());
+									client.updatePrivateChat(message.getMessage());
 									break;
 								case "joiningPrivateChat":
 									client.joiningPrivateChat();
 									break;
 								case "updateGroupClients":
-									client.updateChatClientList(message.getList());
+									client.updateChatClients(message.getList());
 									break;
 								case "updatePrivateClients":
-									client.updatePChatClientList(message.getList());
+									client.updatePrivateChatClients(message.getList());
 									break;
 								case "updateLobbyChats":
 									client.updateChatList(message.getList());

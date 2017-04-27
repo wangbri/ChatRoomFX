@@ -28,6 +28,12 @@ public class ClientChatroomController implements Initializable {
     private TextField messageField;
     
     private ChatClient client;
+    private int chatNum;
+    public boolean isPrivate;
+    
+    public ClientChatroomController(int chatNum) {
+    	this.chatNum = chatNum;
+    }
     
     public void setClient(ChatClient client) {
     	this.client = client;
@@ -46,9 +52,7 @@ public class ClientChatroomController implements Initializable {
     				messageField.clear();
     			}
 			}
-    		
-    	});
-		
+    	});	
 	}
     
     public void updateChat(String message) {
@@ -74,8 +78,4 @@ public class ClientChatroomController implements Initializable {
 			}
     	});
     }
-
-	
-    
-
 }
