@@ -25,7 +25,7 @@ import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.control.TabPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
@@ -55,9 +55,9 @@ public class ClientMain extends Application {
 	public ClientChatroomController chatController;
 	public ClientChatroomController privateChatController;
 	
+	public TabPane panes;
+	
 	public int clientNum = 0;
-	
-	
 	boolean isShown = false;
 	
 	public static void main(String[] args) {
@@ -90,10 +90,11 @@ public class ClientMain extends Application {
 	
 	// called by ChatClient
 	public void updateClientList(ArrayList<String> list) {
-		if (list.get(0).contains("")) {
+		if (list.get(0).equals("")) {
 			list.clear();
 		}
 		
+		System.out.println(list);
 		clientList = FXCollections.observableArrayList(list);
 		lobbyController.updateLobbyClients(clientList);
 	}
@@ -108,8 +109,8 @@ public class ClientMain extends Application {
 			list.clear();
 		}
 
+		System.out.println(list);
 		chatClientList = FXCollections.observableArrayList(list);
-		System.out.println(chatController);
 		chatController.updateClientList(chatClientList);
 	}
 	
@@ -158,7 +159,7 @@ public class ClientMain extends Application {
 	public void showChatroom(Stage chatStage, boolean isPrivate) {
 		try {
        	 	 loaderChatroom = new FXMLLoader(getClass().getResource("ClientChatroom.fxml"));
-	         chatStage.setScene(new Scene((BorderPane) loaderChatroom.load()));
+	         chatStage.setScene(new Scene((TabPane) loaderChatroom.load()));
 		} catch (Exception ex) {
           Logger.getLogger(ClientMain.class.getName()).log(Level.SEVERE, null, ex);
 		}
@@ -203,7 +204,7 @@ public class ClientMain extends Application {
 					@Override
 					public void run() {
 						// TODO Auto-generated method stub
-						System.out.println("closing chat");
+						System.out.println("CLOSING CHAT");
 						client.exitChat("Chat 0");
 					}	
 				});
@@ -212,8 +213,9 @@ public class ClientMain extends Application {
 		
         try {
         	 loaderLobby = new FXMLLoader(getClass().getResource("ClientLobby.fxml"));
-	         lobbyStage.setScene(new Scene((BorderPane) loaderLobby.load()));
-	         lobbyStage.setTitle("Lobby");
+        	 panes = loaderLobby.load();
+	         lobbyStage.setScene(new Scene(panes));
+	         lobbyStage.setTitle("ChatRoomFX");
 	         lobbyStage.show();
         } catch (Exception ex) {
             Logger.getLogger(ClientMain.class.getName()).log(Level.SEVERE, null, ex);
@@ -223,7 +225,5 @@ public class ClientMain extends Application {
         
         lobbyController = loaderLobby.<ClientLobbyController>getController();
         lobbyController.setClient(client);
-    }
-	
-
+	}
 }
