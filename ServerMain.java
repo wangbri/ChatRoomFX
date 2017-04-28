@@ -62,6 +62,13 @@ public class ServerMain  {
 			if (!events.get(chat).isEmpty()) {
 				events.get(chat).remove(index);
 			}
+			
+			//if there is only one person left in the private chat, delete it
+			if(chat.isPrivate){
+				if(events.get(chat).size()==1){
+					events.remove(chat);
+				}
+			}
 		}	
 	}
 	
@@ -276,11 +283,15 @@ public class ServerMain  {
 					
 					//TODO: Exit Chat
 					}else if(message.getCommand().equals("exitChat")){
+						
+						
 						//close socket if it is a lobby 
 						if(message.getMessage().equals("Chat 0")){
 							this.client.getSocket().close();
 							System.out.println("CLOSING SOCKET");
 						}
+						
+						unregisterObserver(this.client.getChat(message.getMessage()), this.client);
 					}
 				}
 			} catch (IOException e) {
