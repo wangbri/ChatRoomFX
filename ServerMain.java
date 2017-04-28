@@ -65,12 +65,7 @@ public class ServerMain  {
 				events.get(chat).remove(index);
 			}
 			
-			//if there is only one person left in the private chat, delete it
-			if(chat.isPrivate){
-				if(events.get(chat).size()==1){
-					events.remove(chat);
-				}
-			}
+
 		}	
 	}
 	
@@ -318,10 +313,28 @@ public class ServerMain  {
 						}
 						else{
 							//TODO: remove from client getChatList
-							int index = this.client.getChatList().indexOf(this.client);
-							this.client.getChatList().remove(index);
+//							int index = this.client.getChatList().indexOf(this.client);
+//							this.client.getChatList().remove(index);
+							ServerObservable chat = this.client.getChat(message.getMessage());
 							unregisterObserver(this.client.getChat(message.getMessage()), this.client);
-							updateServerClients(this.client.getChat(message.getMessage()));
+							updateServerClients(chat);
+//							//if there is only one person left in the private chat, delete it
+//							if(chat.isPrivate){
+//								if(events.get(chat).size()==1){
+//									events.remove(chat);
+//								}
+//							}
+							
+//							if(!chat.isPrivate){
+								if(events.get(chat).isEmpty()){
+									updateServerChats();
+									events.remove(chat);
+								}
+//							}
+//							if(!events.containsKey(chat)){
+//								updateServerChats();
+//								events.remove(chat);
+//							}
 						}
 						
 					}
