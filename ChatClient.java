@@ -76,12 +76,11 @@ public class ChatClient {
 		writeCommand(cm);
 	}
 	
-//	public void joinPrivateChat(String pClient) {
-//		client.showChatroom(true);
-//		ChatPacket cm = new ChatPacket("joinPrivateChat");
-//		cm.setMessage(pClient);
-//		writeCommand(cm);
-//	}
+	public void joinPrivateChat(String pClient) {
+		ChatPacket cm = new ChatPacket("joinPrivateChat");
+		cm.setMessage(pClient);
+		writeCommand(cm);
+	}
 	
 	public void exitChat(String chat) {
 		ChatPacket cm = new ChatPacket();
@@ -124,19 +123,18 @@ public class ChatClient {
 									client.updateChat(message.getChat(), message.getMessage());
 									break;
 								case "privateChat":
-									client.updatePrivateChat(message.getMessage());
+									client.updatePrivateChat(message.getChat(), message.getMessage());
 									break;
 								case "joiningGroupChat":
-									System.out.println("asdfasdfadsf");
 									client.joiningGroupChat(message.getMessage());
 								case "joiningPrivateChat":
-//									client.joiningPrivateChat();
+									client.joiningPrivateChat(message.getMessage());
 									break;
 								case "updateGroupClients":
 									client.updateChatClients(message.getChat(), message.getList());
 									break;
 								case "updatePrivateClients":
-									client.updatePrivateChatClients(message.getList());
+									client.updatePrivateChatClients(message.getChat(), message.getList());
 									break;
 								case "updateLobbyChats":
 									client.updateChatList(message.getList());

@@ -55,9 +55,10 @@ public class ClientMain extends Application {
 	public Object clientLock = new Object();
 	public ClientLobbyController lobbyController;
 //	public ClientChatroomController chatController;
-	public ClientChatroomController privateChatController;
+//	public ClientChatroomController privateChatController;
 	
-	public HashMap<String, ClientChatroomController> controllerList = new HashMap<String, ClientChatroomController>();
+	public HashMap<String, ClientChatroomController> groupControllerList = new HashMap<String, ClientChatroomController>();
+	public HashMap<String, ClientChatroomController> privateControllerList = new HashMap<String, ClientChatroomController>();
 	
 	public TabPane panes;
 	
@@ -130,17 +131,17 @@ public class ClientMain extends Application {
 		chatClientList = FXCollections.observableArrayList(list);
 		
 		
-		System.out.println("ADSFASDFA" + controllerList.get(chat) + chat);
-		controllerList.get(chat).updateClientList(FXCollections.observableArrayList(list));
+		System.out.println("ADSFASDFA" + groupControllerList.get(chat) + chat);
+		groupControllerList.get(chat).updateClientList(FXCollections.observableArrayList(list));
 	}
 	
 	public void updateChat(String chat, String message) {
-		controllerList.get(chat).updateChat(message);
+		groupControllerList.get(chat).updateChat(message);
 	}
 	
 	
 	// FOR PRIVATE CHATS
-	public void updatePrivateChatClients(ArrayList<String> list) {		
+	public void updatePrivateChatClients(String chat, ArrayList<String> list) {		
 		if (list.get(0).equals("")) {
 			list.clear();
 		}
@@ -157,11 +158,11 @@ public class ClientMain extends Application {
 		}
 		
 		pChatClientList = FXCollections.observableArrayList(list);
-		privateChatController.updateClientList(pChatClientList);
+		privateControllerList.get(chat).updateClientList(pChatClientList);
 	}
 	
-	public void updatePrivateChat(String message) {
-		privateChatController.updateChat(message);
+	public void updatePrivateChat(String chat, String message) {
+		privateControllerList.get(chat).updateChat(message);
 	}
 	
 	public void joiningPrivateChat(String chatName) {
@@ -218,10 +219,13 @@ public class ClientMain extends Application {
         panes.getTabs().add(chatTab);
 	
 		if (isPrivate) {
+			ClientChatroomController privateChatController = null;
 			privateChatController = loaderChat.<ClientChatroomController>getController();
 			privateChatController.setName(chatName);
 			privateChatController.setClient(client);
 			System.out.println("private" + privateChatController.getClass().toString());
+			
+			privateControllerList.put(chatName, privateChatController);
 		} else {
 			ClientChatroomController chatController = null;
 			chatController = loaderChat.<ClientChatroomController>getController();
@@ -229,7 +233,7 @@ public class ClientMain extends Application {
 			System.out.println("group" + chatController.getClass().toString());
 			chatController.setClient(client);
 			
-			controllerList.put(chatName,  chatController);
+			groupControllerList.put(chatName,  chatController);
 		}
 		
 //		chatStage.show();
