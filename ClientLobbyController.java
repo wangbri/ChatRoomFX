@@ -71,10 +71,15 @@ public class ClientLobbyController implements Initializable {
 			@Override
 			public void handle(MouseEvent arg0) {
 				// TODO Auto-generated method stub
-				if (arg0.getButton() == MouseButton.SECONDARY) { // is right click
+//				if (arg0.getButton() == MouseButton.SECONDARY) { // is right click
+//					selectedClient = lobbyClients.getSelectionModel().getSelectedItem();
+//					cm.show(lobbyClients, arg0.getScreenX(), arg0.getScreenY());
+//				}
+				if (arg0.getClickCount() == 2) {
+					System.out.println("PRIVATE MESSAGING...");
 					selectedClient = lobbyClients.getSelectionModel().getSelectedItem();
-					cm.show(lobbyClients, arg0.getScreenX(), arg0.getScreenY());
-				}
+					client.joinPrivateChat(selectedClient);
+				}	
 			}	
     	});
     	

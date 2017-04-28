@@ -134,6 +134,7 @@ public class ServerMain  {
 				clients.add(events.get(chat).get(i).toString());
 			} else if (chat.isPrivate) {
 				cmd.setCommand("updatePrivateClients");
+				cmd.setChat(chat.toString());
 				clients.add(events.get(chat).get(i).toString());
 			} else {
 				cmd.setCommand("updateGroupClients");
@@ -209,11 +210,14 @@ public class ServerMain  {
 					//if the data is a message being transmitted
 					if(message.getCommand().equals("sendMessage")){
 						//determine the nature of the chat
-//						if (!message.getChat().contains("Private")) {
+						
+						
+						if (!this.client.getChat(message.getChat()).isPrivate) {
 							message.setCommand("groupChat");
-//						} else {
-//							message.setCommand("privateChat");
-//						}
+						} else {
+							message.setCommand("privateChat");
+						}
+							
 						System.out.println(this.client.getChat(message.getChat()));
 						notifyObservers(this.client.getChat(message.getChat()), message);
 
@@ -268,14 +272,22 @@ public class ServerMain  {
 
 						if(chatExists){
 							ChatPacket cm = new ChatPacket("joiningPrivateChat");
+								
 							ArrayList<ClientObserver> clients = new ArrayList<ClientObserver>();
 							ServerObservable chat = new ServerObservable(++serverNum);
 							
+							cm.setMessage(chat.toString());
+							
 							clientList.get(chatIndex).update(cm);
+							this.client.update(cm);
 							chat.setPrivate();	
 							
 							clients.add(this.client);
 							clients.add(clientList.get(chatIndex));
+							
+							System.out.println("asdfadfas" + clients.toString());
+							
+							
 							clientList.get(chatIndex).setChat(chat);
 							this.client.setChat(chat);
 							
