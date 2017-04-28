@@ -121,7 +121,7 @@ public class ChatClient {
 
 							switch (message.getCommand()) {
 								case "groupChat":
-									client.updateChat(message.getMessage());
+									client.updateChat(message.getChat(), message.getMessage());
 									break;
 								case "privateChat":
 									client.updatePrivateChat(message.getMessage());
@@ -133,7 +133,7 @@ public class ChatClient {
 //									client.joiningPrivateChat();
 									break;
 								case "updateGroupClients":
-									client.updateChatClients(message.getList());
+									client.updateChatClients(message.getChat(), message.getList());
 									break;
 								case "updatePrivateClients":
 									client.updatePrivateChatClients(message.getList());
