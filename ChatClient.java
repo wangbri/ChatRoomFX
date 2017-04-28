@@ -127,6 +127,7 @@ public class ChatClient {
 									break;
 								case "joiningGroupChat":
 									client.joiningGroupChat(message.getMessage());
+									break;
 								case "joiningPrivateChat":
 									client.joiningPrivateChat(message.getMessage());
 									break;
