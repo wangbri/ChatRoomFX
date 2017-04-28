@@ -50,7 +50,7 @@ public class ClientLobbyController implements Initializable {
     	MenuItem cmItem = new MenuItem("Message..");
     	cmItem.setOnAction(new EventHandler<ActionEvent>() {
     	    public void handle(ActionEvent e) {
-    	        client.joinPrivateChat(selectedClient);
+//    	        client.joinPrivateChat(selectedClient);
     	    }
     	});
     	
@@ -75,8 +75,7 @@ public class ClientLobbyController implements Initializable {
 					selectedClient = lobbyClients.getSelectionModel().getSelectedItem();
 					cm.show(lobbyClients, arg0.getScreenX(), arg0.getScreenY());
 				}
-			}
-    		
+			}	
     	});
     	
 		// TODO Auto-generated method stub
@@ -92,6 +91,7 @@ public class ClientLobbyController implements Initializable {
 
 	        @Override
 	        public void handle(ActionEvent event) {
+	        	System.out.println(selectedChat);
 	            client.joinChat(selectedChat);
 	        }
 	    });
@@ -107,8 +107,7 @@ public class ClientLobbyController implements Initializable {
 				lobbyChats.setItems(list);
 			}
     	});
-    }
-    
+    }  
     
     public void updateLobbyClients(ObservableList<String> list) {
     	

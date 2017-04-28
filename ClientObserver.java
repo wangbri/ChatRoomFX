@@ -26,7 +26,7 @@ public class ClientObserver {
 
 	public ServerObservable getChat(String ChatName) {
 		for(int i = 0; i <chat.size(); i++){
-			if((chat.get(i)).equals(ChatName)){
+			if((chat.get(i).toString()).equals(ChatName)){
 				return chat.get(i);
 			}
 		}
@@ -49,7 +49,7 @@ public class ClientObserver {
 		return socket;
 	}
 
-	public void update(ServerObservable o, Object arg) {
+	public void update(Object arg) {
 		try {
 			obj.writeObject(arg);
 			obj.reset();

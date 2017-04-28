@@ -1,5 +1,6 @@
 package assignment7;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -25,7 +26,9 @@ import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
@@ -109,8 +112,21 @@ public class ClientMain extends Application {
 			list.clear();
 		}
 
+		if (!isShown) {
+			synchronized(clientLock) {
+				try {
+					clientLock.wait();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		
 		System.out.println(list);
 		chatClientList = FXCollections.observableArrayList(list);
+		System.out.println("Asdfadsf" + chatController);
 		chatController.updateClientList(chatClientList);
 	}
 	
@@ -144,37 +160,69 @@ public class ClientMain extends Application {
 		privateChatController.updateChat(message);
 	}
 	
-	public void joiningPrivateChat() {
+	public void joiningPrivateChat(String chatName) {
 		Platform.runLater(new Runnable() {
 
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
-				showChatroom(pChatStage, true);
+				showChatroom(chatName, true);
 			}
 			
 		});	
 	}
 	
-	public void showChatroom(Stage chatStage, boolean isPrivate) {
-		try {
-       	 	 loaderChatroom = new FXMLLoader(getClass().getResource("ClientChatroom.fxml"));
-	         chatStage.setScene(new Scene((TabPane) loaderChatroom.load()));
-		} catch (Exception ex) {
-          Logger.getLogger(ClientMain.class.getName()).log(Level.SEVERE, null, ex);
+	public void joiningGroupChat(String chatName) {
+		Platform.runLater(new Runnable() {
+
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				showChatroom(chatName, false);
+			}
+			
+		});	
+	}
+	
+	public void showChatroom(String chatName, boolean isPrivate) {
+		System.out.println("CALLED HERE");
+//		try {
+//       	 	 loaderChatroom = new FXMLLoader(getClass().getResource("ClientChatroom.fxml"));
+//	         chatStage.setScene(new Scene((TabPane) loaderChatroom.load()));
+//		} catch (Exception ex) {
+//          Logger.getLogger(ClientMain.class.getName()).log(Level.SEVERE, null, ex);
+//		}
+		
+		Tab chatTab = new Tab();
+        chatTab.setText("Chat");
+        
+        FXMLLoader loaderChat = null;
+        
+        try {
+        	loaderChat = new FXMLLoader(getClass().getResource("ClientChatroom.fxml"));
+			chatTab.setContent((BorderPane)loaderChat.load());
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+        
+        panes.getTabs().add(chatTab);
 	
 		if (isPrivate) {
-			privateChatController = loaderChatroom.<ClientChatroomController>getController();
+			privateChatController = loaderChat.<ClientChatroomController>getController();
+			privateChatController.setName(chatName);
 			privateChatController.setClient(client);
-			chatStage.setTitle("Private Chatroom");
+			System.out.println("private" + privateChatController.getClass().toString());
 		} else {
-			chatController = loaderChatroom.<ClientChatroomController>getController();
+
+			chatController = loaderChat.<ClientChatroomController>getController();
+			chatController.setName(chatName);
+			System.out.println("group" + chatController.getClass().toString());
 			chatController.setClient(client);
-			chatStage.setTitle("Group Chatroom");
 		}
 		
-		chatStage.show();
+//		chatStage.show();
 		
 		synchronized(clientLock) {
 			clientLock.notify();
@@ -188,6 +236,7 @@ public class ClientMain extends Application {
 	}
 	
 	public void start(Stage primaryStage) {
+		FXMLLoader loaderPanes = null;
 		FXMLLoader loaderLobby = null;
 		
 		lobbyStage = new Stage();
@@ -212,14 +261,28 @@ public class ClientMain extends Application {
 		});
 		
         try {
-        	 loaderLobby = new FXMLLoader(getClass().getResource("ClientLobby.fxml"));
-        	 panes = loaderLobby.load();
+        	 loaderPanes = new FXMLLoader(getClass().getResource("ChatPanes.fxml"));
+        	 panes = loaderPanes.load();
 	         lobbyStage.setScene(new Scene(panes));
 	         lobbyStage.setTitle("ChatRoomFX");
 	         lobbyStage.show();
         } catch (Exception ex) {
             Logger.getLogger(ClientMain.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
+        Tab lobbyTab = new Tab();
+        lobbyTab.setText("Lobby");
+        
+        try {
+        	loaderLobby = new FXMLLoader(getClass().getResource("ClientLobby.fxml"));
+			lobbyTab.setContent((BorderPane)loaderLobby.load());
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        
+        panes.getTabs().add(lobbyTab);
         
         client = new ChatClient(this);  
         

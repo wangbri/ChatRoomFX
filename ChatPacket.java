@@ -6,6 +6,15 @@ import java.util.ArrayList;
 public class ChatPacket implements Serializable {
 	private String command;
 	private String message;
+	private String chat;
+	public String getChat() {
+		return chat;
+	}
+
+	public void setChat(String chat) {
+		this.chat = chat;
+	}
+
 	private ArrayList<String> list;
 	
 	public ChatPacket() {

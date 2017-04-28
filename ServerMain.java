@@ -73,7 +73,7 @@ public class ServerMain  {
 		ArrayList<ClientObserver> clients = events.get(chat);
 		
 		for(int i = 0; i < clients.size(); i++){
-			clients.get(i).update(chat, data);
+			clients.get(i).update(data);
 		}
 	}
 
@@ -106,7 +106,7 @@ public class ServerMain  {
 			
 			clientList.add(writer);
 			registerObserver(chatLobby, writer);		
-			updateServerChats(chatLobby);
+			updateServerChats();
 			
 			// create thread to handle (read) each client's "startChat button press"
 			Thread t = new Thread(new ChatListHandler(clientSocket, writer));
@@ -141,17 +141,17 @@ public class ServerMain  {
 		
 		if (chat == chatLobby) {
 			for (ClientObserver w : clientList) {
-				w.update(chat, cmd);
+				w.update(cmd);
 			}
 		//else update it with clients in the chat
 		} else {
 			for (ClientObserver w : events.get(chat)) {
-				w.update(chat, cmd);
+				w.update(cmd);
 			}
 		}	
 	}
 	
-	public void updateServerChats(ServerObservable chat) {
+	public void updateServerChats() {
 		ArrayList<String> chats = new ArrayList<String>();
 		
 		//look through the list of the chats and update the list in the lobby
@@ -169,7 +169,7 @@ public class ServerMain  {
 		
 		if (!chats.isEmpty()) {
 			for (ClientObserver w : events.get(chatLobby)) {
-				w.update(chat, cmd);
+				w.update(cmd);
 			}
 		}
 	}
@@ -196,16 +196,17 @@ public class ServerMain  {
 			
 			try {
 				while ((message = (ChatPacket)objectInput.readObject()) != null) {
+					
 					//if the data is a message being transmitted
 					if(message.getCommand().equals("sendMessage")){
 						//determine the nature of the chat
-						if (!client.getChat(message.getMessage()).isPrivate) {
+//						if (!message.getChat().contains("Private")) {
 							message.setCommand("groupChat");
-						} else {
-							message.setCommand("privateChat");
-						}
-						
-						notifyObservers(this.client.getChat(message.getMessage()), message);
+//						} else {
+//							message.setCommand("privateChat");
+//						}
+						System.out.println(this.client.getChat(message.getChat()));
+						notifyObservers(this.client.getChat(message.getChat()), message);
 
 						System.out.println("GROUP MSG SENT: " + message.getMessage());
 						
@@ -214,7 +215,11 @@ public class ServerMain  {
 						ArrayList<ClientObserver> clients = new ArrayList<ClientObserver>();
 						
 						events.put(chat, clients);
-						updateServerChats(chat);
+						updateServerChats();
+						
+						ChatPacket cp = new ChatPacket("createdGroupChat");
+						cp.setMessage(chat.toString());
+						client.update(cp);
 						
 						System.out.println("ADDED CHAT");
 						
@@ -228,6 +233,12 @@ public class ServerMain  {
 								break;
 							}
 						}
+						
+						client.setChat(chat);
+						
+						ChatPacket cp = new ChatPacket("joiningGroupChat");
+						cp.setMessage(message.getMessage());
+						client.update(cp);
 						
 						//TODO: take out this line to allow multiple chats for one client 
 //						unregisterObserver(chatLobby, client);
@@ -251,7 +262,7 @@ public class ServerMain  {
 							ArrayList<ClientObserver> clients = new ArrayList<ClientObserver>();
 							ServerObservable chat = new ServerObservable(++serverNum);
 							
-							clientList.get(chatIndex).update(null, cm);
+							clientList.get(chatIndex).update(cm);
 							chat.setPrivate();	
 							
 							clients.add(this.client);

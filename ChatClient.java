@@ -5,6 +5,7 @@ import java.net.*;
 import java.util.ArrayList;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.Tab;
 
 public class ChatClient {
 	public ObjectOutputStream writer;
@@ -13,8 +14,11 @@ public class ChatClient {
 	public Thread clientReaderThread;
 	public Thread chatReaderThread;
 	
+	// for updating clientLobby
 	public ObservableList<String> clientList = FXCollections.observableArrayList();
 	public ObservableList<String> chatList = FXCollections.observableArrayList();
+	
+	public ArrayList<String> activeChats = new ArrayList<String>();
 	
 	public boolean isChatFinished = false;
 	public boolean isClientFinished = false;
@@ -59,25 +63,25 @@ public class ChatClient {
 	}
 	
 	public void joinChat(String chat) {
-		client.showChatroom(client.chatStage, false);
 		//client.exitLobby();
 		ChatPacket cm = new ChatPacket("joinChat");
 		cm.setMessage(chat);
 		writeCommand(cm);
 	}
 	
-	public void sendMessage(String message) {
+	public void sendMessage(String message, String chat) {
 		ChatPacket cm = new ChatPacket("sendMessage");
 		cm.setMessage(message);
+		cm.setChat(chat);
 		writeCommand(cm);
 	}
 	
-	public void joinPrivateChat(String pClient) {
-		client.showChatroom(client.pChatStage, true);
-		ChatPacket cm = new ChatPacket("joinPrivateChat");
-		cm.setMessage(pClient);
-		writeCommand(cm);
-	}
+//	public void joinPrivateChat(String pClient) {
+//		client.showChatroom(true);
+//		ChatPacket cm = new ChatPacket("joinPrivateChat");
+//		cm.setMessage(pClient);
+//		writeCommand(cm);
+//	}
 	
 	public void exitChat(String chat) {
 		ChatPacket cm = new ChatPacket();
@@ -122,8 +126,11 @@ public class ChatClient {
 								case "privateChat":
 									client.updatePrivateChat(message.getMessage());
 									break;
+								case "joiningGroupChat":
+									System.out.println("asdfasdfadsf");
+									client.joiningGroupChat(message.getMessage());
 								case "joiningPrivateChat":
-									client.joiningPrivateChat();
+//									client.joiningPrivateChat();
 									break;
 								case "updateGroupClients":
 									client.updateChatClients(message.getList());

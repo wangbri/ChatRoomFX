@@ -28,11 +28,15 @@ public class ClientChatroomController implements Initializable {
     private TextField messageField;
     
     private ChatClient client;
-    private int chatNum;
+    private String chatName;
     public boolean isPrivate;
     
-    public ClientChatroomController(int chatNum) {
-    	this.chatNum = chatNum;
+    public ClientChatroomController() {
+    }
+    
+    public void setName(String chatName) {
+    	System.out.println(chatName);
+    	this.chatName = chatName;
     }
     
     public void setClient(ChatClient client) {
@@ -48,7 +52,7 @@ public class ClientChatroomController implements Initializable {
 			public void handle(KeyEvent arg0) {
 				// TODO Auto-generated method stub
 				if (arg0.getCode() == KeyCode.ENTER) {
-    				client.sendMessage(messageField.getText());
+    				client.sendMessage(messageField.getText(), chatName);
     				messageField.clear();
     			}
 			}
