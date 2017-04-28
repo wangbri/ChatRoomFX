@@ -22,11 +22,13 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.TabPane.TabClosingPolicy;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -205,6 +207,17 @@ public class ClientMain extends Application {
 		Tab chatTab = new Tab();
         chatTab.setText(chatName);
         
+        chatTab.setOnClosed(new EventHandler<Event>() {
+
+			@Override
+			public void handle(Event arg0) {
+				// TODO Auto-generated method stub
+				System.out.println("asfasdf");
+				client.exitChat(chatName);
+			}
+        	
+        });
+        
         FXMLLoader loaderChat = null;
         
         try {
@@ -284,7 +297,10 @@ public class ClientMain extends Application {
             Logger.getLogger(ClientMain.class.getName()).log(Level.SEVERE, null, ex);
         }
         
+        panes.setTabClosingPolicy(TabClosingPolicy.ALL_TABS);
+        
         Tab lobbyTab = new Tab();
+        lobbyTab.setClosable(false);
         lobbyTab.setText("Lobby");
         
         try {
