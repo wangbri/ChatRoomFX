@@ -23,6 +23,10 @@ public class ClientObserver {
 		this.obj = obj;
 		this.chat.add(chat);
 	}
+	
+	public ArrayList<ServerObservable> getChatList(){
+		return chat;
+	}
 
 	public ServerObservable getChat(String ChatName) {
 		for(int i = 0; i <chat.size(); i++){

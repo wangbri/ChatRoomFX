@@ -57,6 +57,7 @@ public class ServerMain  {
 	public void unregisterObserver(ServerObservable chat, ClientObserver client){
 		if(events.containsKey(chat)){	
 			int index = events.get(chat).indexOf(client);
+			System.out.println(index);
 			
 			// if there are still clients left in the chat
 			if (!events.get(chat).isEmpty()) {
@@ -282,20 +283,29 @@ public class ServerMain  {
 							updateServerClients(chat);
 						}
 					
-					//TODO: Exit Chat
+					//TODO: Exit Chat - updateServerClients 
 					}else if(message.getCommand().equals("exitChat")){
 						
 						
 						//close socket if it is a lobby 
 						if(message.getMessage().equals("Chat 0")){
+							ArrayList<ServerObservable> chatList = this.client.getChatList();
+							for(int i = 0; i < chatList.size(); i++){
+								unregisterObserver(chatList.get(i),this.client);
+								updateServerClients(chatList.get(i));
+							}
 							int index = clientList.indexOf(this.client);
 							clientList.remove(index);
-							updateServerClients(this.client.getChat(message.getMessage()));
+							
+							
+//							updateServerClients(this.client.getChat(message.getMessage()));
 //							this.client.getSocket().close();
-							System.out.println("CLOSING SOCKET");
+						}
+						else{
+							unregisterObserver(this.client.getChat(message.getMessage()), this.client);
+							updateServerClients(this.client.getChat(message.getMessage()));
 						}
 						
-						unregisterObserver(this.client.getChat(message.getMessage()), this.client);
 					}
 				}
 			} catch (IOException e) {
