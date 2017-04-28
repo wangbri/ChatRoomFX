@@ -299,8 +299,11 @@ public class ServerMain  {
 						
 						
 						//close socket if it is a lobby 
-						if(message.getMessage().equals("Chat 0")){ // TODO: DEPRECATED
-							this.client.getSocket().close();
+						if(message.getMessage().equals("Chat 0")){
+							int index = clientList.indexOf(this.client);
+							clientList.remove(index);
+							updateServerClients(this.client.getChat(message.getMessage()));
+//							this.client.getSocket().close();
 							System.out.println("CLOSING SOCKET");
 						}
 						
