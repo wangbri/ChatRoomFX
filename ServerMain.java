@@ -113,6 +113,10 @@ public class ServerMain  {
 			registerObserver(chatLobby, writer);		
 			updateServerChats();
 			
+			ChatPacket cp = new ChatPacket("initMessage");
+			cp.setMessage(String.valueOf(writer.getClientNum()));
+			writer.update(cp);
+			
 			// create thread to handle (read) each client's "startChat button press"
 			Thread t = new Thread(new ChatListHandler(clientSocket, writer));
 			t.start();
@@ -196,9 +200,10 @@ public class ServerMain  {
 	class ChatListHandler implements Runnable {
 		private ObjectInputStream objectInput;
 		private ClientObserver client;
+		private Socket sock;
 
 		public ChatListHandler(Socket clientSocket, ClientObserver client) {
-			Socket sock = clientSocket;
+			sock = clientSocket;
 			this.client = client;
 			
 			try {
@@ -282,18 +287,17 @@ public class ServerMain  {
 								
 							ArrayList<ClientObserver> clients = new ArrayList<ClientObserver>();
 							ServerObservable chat = new ServerObservable(++serverNum);
-							
-							cm.setMessage(chat.toString());
-							
-							clientList.get(chatIndex).update(cm);
-							this.client.update(cm);
 							chat.setPrivate();	
+							
+							cm.setChat(chat.toString());
+							cm.setMessage(message.getMessage());
+							this.client.update(cm);					
+							
+							cm.setMessage(this.client.toString());
+							clientList.get(chatIndex).update(cm);						
 							
 							clients.add(this.client);
 							clients.add(clientList.get(chatIndex));
-							
-							System.out.println("asdfadfas" + clients.toString());
-							
 							
 							clientList.get(chatIndex).setChat(chat);
 							client.setChat(chat);
@@ -321,6 +325,8 @@ public class ServerMain  {
 							ChatPacket cp = new ChatPacket("exitedLobby");
 							this.client.update(cp);
 							Thread.currentThread().stop();
+							sock.close();
+							
 							
 //							updateServerClients(this.client.getChat(message.getMessage()));
 //							this.client.getSocket().close();
@@ -352,7 +358,27 @@ public class ServerMain  {
 //							}
 						}
 						
+					} else if (message.getCommand().equals("exitPrivateChat")) {
+						boolean clientExists = false;
+						int clientIndex = 0;
+						
+						for(int i = 0; i < clientList.size(); i++){
+							if(clientList.get(i).toString().contains(message.getMessage())){
+								clientExists = true;
+								clientIndex = i;
+								break;
+							}
+						}
+						
+						if (clientExists) {
+							System.out.println(clientList.get(clientIndex).toString());
+							ChatPacket cp = new ChatPacket("exitedPrivateChat");
+							cp.setMessage(client.toString());
+							clientList.get(clientIndex).update(cp);
+						}
+						
 					}
+					
 				}
 			} catch (IOException e) {
 				e.printStackTrace();

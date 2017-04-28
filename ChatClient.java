@@ -2,10 +2,8 @@ package assignment7;
 
 import java.io.*;
 import java.net.*;
-import java.util.ArrayList;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.Tab;
 
 public class ChatClient {
 	public ObjectOutputStream writer;
@@ -18,13 +16,9 @@ public class ChatClient {
 	public ObservableList<String> clientList = FXCollections.observableArrayList();
 	public ObservableList<String> chatList = FXCollections.observableArrayList();
 	
-	public ArrayList<String> activeChats = new ArrayList<String>();
-	
-	public boolean isChatFinished = false;
-	public boolean isClientFinished = false;
-	public boolean threadStopped = false;
-	
+//	public ArrayList<String> activeChats = new ArrayList<String>();
 	public ClientMain client;
+	public int clientNum;
 	
 	public ChatClient(ClientMain client) {
 		this.client = client;
@@ -63,7 +57,6 @@ public class ChatClient {
 	}
 	
 	public void joinChat(String chat) {
-		//client.exitLobby();
 		ChatPacket cm = new ChatPacket("joinChat");
 		cm.setMessage(chat);
 		writeCommand(cm);
@@ -76,9 +69,9 @@ public class ChatClient {
 		writeCommand(cm);
 	}
 	
-	public void joinPrivateChat(String pClient) {
+	public void joinPrivateChat(String clientName) {
 		ChatPacket cm = new ChatPacket("joinPrivateChat");
-		cm.setMessage(pClient);
+		cm.setMessage(clientName);
 		writeCommand(cm);
 	}
 	
@@ -87,7 +80,13 @@ public class ChatClient {
 		cm.setCommand("exitChat");
 		cm.setMessage(chat);
 		writeCommand(cm);
-//		threadStopped = true;
+	}
+	
+	public void exitPrivateChat(String clientName) {
+		ChatPacket cm = new ChatPacket();
+		cm.setCommand("exitPrivateChat");
+		cm.setMessage(clientName);
+		writeCommand(cm);
 	}
 
 	public void writeCommand(ChatPacket cm) {
@@ -119,6 +118,9 @@ public class ChatClient {
 							System.out.println("from cc " + message.getMessage() + " " + message.getCommand() + " " +  message.getList());
 
 							switch (message.getCommand()) {
+								case "initMessage":
+									clientNum = Integer.parseInt(message.getMessage());
+									break;
 								case "groupChat":
 									client.updateChat(message.getChat(), message.getMessage());
 									break;
@@ -129,7 +131,7 @@ public class ChatClient {
 									client.joiningGroupChat(message.getMessage());
 									break;
 								case "joiningPrivateChat":
-									client.joiningPrivateChat(message.getMessage());
+									client.joiningPrivateChat(message.getChat(), message.getMessage());
 									break;
 								case "updateGroupClients":
 									client.updateChatClients(message.getChat(), message.getList());
@@ -145,6 +147,9 @@ public class ChatClient {
 									break;
 								case "exitedLobby":
 									client.exitLobby();
+									break;
+								case "exitedPrivateChat":
+									client.exitPrivateChat(message.getMessage());
 									break;
 							}
 						}

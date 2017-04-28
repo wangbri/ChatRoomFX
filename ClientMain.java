@@ -66,7 +66,6 @@ public class ClientMain extends Application {
 	
 	public TabPane panes;
 	
-	public int clientNum = 0;
 	boolean isShown = false;
 	
 	public static void main(String[] args) {
@@ -169,16 +168,37 @@ public class ClientMain extends Application {
 		privateControllerList.get(chat).updateChat(message);
 	}
 	
-	public void joiningPrivateChat(String chatName) {
+	public void joiningPrivateChat(String chatName, String otherClient) {
 		Platform.runLater(new Runnable() {
 
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
-				showChatroom(chatName, true);
+				showChatroom(chatName, otherClient, true);
 			}
 			
 		});	
+	}
+	
+	public void exitPrivateChat(String clientName) {
+		ObservableList<Tab> paneList= panes.getTabs();
+		
+		System.out.println(clientName);
+		
+		Platform.runLater(new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				for (int i = 0; i < paneList.size(); i++) {
+					System.out.println(paneList.get(i).getText());
+					if (paneList.get(i).getText().equals(clientName)) {
+						System.out.println("CLOSED TAB");
+						panes.getTabs().remove(paneList.get(i));
+					}
+				}
+			}
+		});		
 	}
 	
 	public void joiningGroupChat(String chatName) {
@@ -187,13 +207,13 @@ public class ClientMain extends Application {
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
-				showChatroom(chatName, false);
+				showChatroom(chatName, null, false);
 			}
 			
 		});	
 	}
 	
-	public void showChatroom(String chatName, boolean isPrivate) {
+	public void showChatroom(String chatName, String otherClient, boolean isPrivate) {
 		System.out.println("CALLED HERE");
 		isShown = false; //temporary 'hacky' solution, not very thread-safe
 		
@@ -207,18 +227,31 @@ public class ClientMain extends Application {
 //		}
 		
 		Tab chatTab = new Tab();
-        chatTab.setText(chatName);
         
-        chatTab.setOnClosed(new EventHandler<Event>() {
+        
+        
+        if (isPrivate) {
+        	chatTab.setOnClosed(new EventHandler<Event>() {
 
-			@Override
-			public void handle(Event arg0) {
-				// TODO Auto-generated method stub
-				System.out.println("asfasdf");
-				client.exitChat(chatName);
-			}
-        	
-        });
+    			@Override
+    			public void handle(Event arg0) {
+    				// TODO Auto-generated method stub
+    				System.out.println("EXITING PRIVATE CHAT");
+					client.exitPrivateChat(otherClient);
+    			}
+            	
+            });
+        } else {
+        	chatTab.setOnClosed(new EventHandler<Event>() {
+
+    			@Override
+    			public void handle(Event arg0) {
+    				// TODO Auto-generated method stub
+					client.exitChat(chatName);
+    			}
+            	
+            });
+        }
         
         FXMLLoader loaderChat = null;
         
@@ -240,6 +273,8 @@ public class ClientMain extends Application {
 			privateChatController.setClient(client);
 			System.out.println("private" + privateChatController.getClass().toString());
 			
+			chatTab.setText(otherClient);
+			
 			privateControllerList.put(chatName, privateChatController);
 		} else {
 			ClientChatroomController chatController = null;
@@ -247,6 +282,8 @@ public class ClientMain extends Application {
 			chatController.setName(chatName);
 			System.out.println("group" + chatController.getClass().toString());
 			chatController.setClient(client);
+			
+			chatTab.setText(chatName);
 			
 			groupControllerList.put(chatName,  chatController);
 		}
@@ -277,7 +314,6 @@ public class ClientMain extends Application {
 		
 		lobbyStage = new Stage();
 		chatStage = new Stage();
-		pChatStage = new Stage();
 		
 		lobbyStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
 
