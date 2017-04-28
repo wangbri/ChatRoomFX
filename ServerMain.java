@@ -1,5 +1,6 @@
 package assignment7;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -25,7 +26,7 @@ public class ServerMain  {
 	static int clientNum;
 	int serverNum;
 	
-	private boolean exited = false;
+	private boolean threadStopped = false;
 		
 	public static void main(String[] args) {
 		try {
@@ -142,8 +143,18 @@ public class ServerMain  {
 		if (!clients.isEmpty()) {
 			cmd.setList(clients);
 		} else {
+			if (chat == chatLobby) {
+				cmd.setCommand("updateLobbyClients");
+			} else if (chat.isPrivate) {
+				cmd.setCommand("updatePrivateClients");
+			} else {
+				cmd.setCommand("updateGroupClients");
+			}
+			
 			cmd.setList(new ArrayList<String>(Arrays.asList("")));
 		}
+		
+		System.out.println(events + cmd.getCommand());
 		
 		if (chat == chatLobby) {
 			for (ClientObserver w : clientList) {
@@ -201,7 +212,7 @@ public class ServerMain  {
 			ChatPacket message;
 			
 			try {
-				while (!exited && (message = (ChatPacket)objectInput.readObject()) != null) {
+				while ((message = (ChatPacket)objectInput.readObject()) != null) {
 					
 					//if the data is a message being transmitted
 					if(message.getCommand().equals("sendMessage")){
@@ -285,7 +296,7 @@ public class ServerMain  {
 							
 							
 							clientList.get(chatIndex).setChat(chat);
-							this.client.setChat(chat);
+							client.setChat(chat);
 							
 							events.put(chat, clients);
 							updateServerClients(chat);
@@ -294,30 +305,34 @@ public class ServerMain  {
 					//TODO: Exit Chat - updateServerClients 
 					}else if(message.getCommand().equals("exitChat")){
 						
-						
+						System.out.println("EXITING CHAT");
 						//close socket if it is a lobby 
 						if(message.getMessage().equals("Chat 0")){
 							ArrayList<ServerObservable> chatList = this.client.getChatList();
+							
 							for(int i = 0; i < chatList.size(); i++){
 								unregisterObserver(chatList.get(i),this.client);
 								updateServerClients(chatList.get(i));
 							}
+							
 							int index = clientList.indexOf(this.client);
 							clientList.remove(index);
+							
 							ChatPacket cp = new ChatPacket("exitedLobby");
 							this.client.update(cp);
-							exited = true;
+							Thread.currentThread().stop();
 							
 //							updateServerClients(this.client.getChat(message.getMessage()));
 //							this.client.getSocket().close();
-						}
-						else{
+						} else {
 							//TODO: remove from client getChatList
 //							int index = this.client.getChatList().indexOf(this.client);
-//							this.client.getChatList().remove(index);
+//							this.client.getChatList().remove(index);			
+							
 							ServerObservable chat = this.client.getChat(message.getMessage());
 							unregisterObserver(this.client.getChat(message.getMessage()), this.client);
 							updateServerClients(chat);
+							
 //							//if there is only one person left in the private chat, delete it
 //							if(chat.isPrivate){
 //								if(events.get(chat).size()==1){

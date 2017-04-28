@@ -2,7 +2,9 @@ package assignment7;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -259,7 +261,14 @@ public class ClientMain extends Application {
 	}
 	
 	public void exitLobby() {
-		lobbyStage.close();
+		try {
+			this.stop();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		System.exit(0);
 	}
 	
 	public void start(Stage primaryStage) {

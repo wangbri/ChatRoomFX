@@ -115,7 +115,7 @@ public class ChatClient {
 			while (true) {
 				synchronized(clientList) {
 					try {
-						while ((!threadStopped && (message = (ChatPacket) objectInput.readObject()) != null)) {
+						while (((message = (ChatPacket) objectInput.readObject()) != null)) {
 							System.out.println("from cc " + message.getMessage() + " " + message.getCommand() + " " +  message.getList());
 
 							switch (message.getCommand()) {
@@ -144,7 +144,7 @@ public class ChatClient {
 									client.updateClientList(message.getList());
 									break;
 								case "exitedLobby":
-									threadStopped = true;
+									client.exitLobby();
 									break;
 							}
 						}

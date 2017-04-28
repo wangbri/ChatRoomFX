@@ -67,6 +67,7 @@ public class ClientChatroomController implements Initializable {
 				ObservableList<String> messages = FXCollections.observableArrayList(Arrays.asList(message));
 				ObservableList<String> history = chatText.getItems();
 				messages.addAll(history);
+				
 				chatText.setItems(messages);
 			}
     	});
