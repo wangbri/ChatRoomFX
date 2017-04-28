@@ -24,6 +24,8 @@ public class ServerMain  {
 	Object lock = new Object();
 	static int clientNum;
 	int serverNum;
+	
+	private boolean exited = false;
 		
 	public static void main(String[] args) {
 		try {
@@ -57,7 +59,6 @@ public class ServerMain  {
 	public void unregisterObserver(ServerObservable chat, ClientObserver client){
 		if(events.containsKey(chat)){	
 			int index = events.get(chat).indexOf(client);
-			System.out.println(index);
 			
 			// if there are still clients left in the chat
 			if (!events.get(chat).isEmpty()) {
@@ -205,7 +206,7 @@ public class ServerMain  {
 			ChatPacket message;
 			
 			try {
-				while ((message = (ChatPacket)objectInput.readObject()) != null) {
+				while (!exited && (message = (ChatPacket)objectInput.readObject()) != null) {
 					
 					//if the data is a message being transmitted
 					if(message.getCommand().equals("sendMessage")){
@@ -247,7 +248,7 @@ public class ServerMain  {
 							}
 						}
 						
-						client.setChat(chat);
+//						client.setChat(chat);
 						
 						ChatPacket cp = new ChatPacket("joiningGroupChat");
 						cp.setMessage(message.getMessage());
@@ -308,12 +309,17 @@ public class ServerMain  {
 							}
 							int index = clientList.indexOf(this.client);
 							clientList.remove(index);
-							
+							ChatPacket cp = new ChatPacket("exitedLobby");
+							this.client.update(cp);
+							exited = true;
 							
 //							updateServerClients(this.client.getChat(message.getMessage()));
 //							this.client.getSocket().close();
 						}
 						else{
+							//TODO: remove from client getChatList
+							int index = this.client.getChatList().indexOf(this.client);
+							this.client.getChatList().remove(index);
 							unregisterObserver(this.client.getChat(message.getMessage()), this.client);
 							updateServerClients(this.client.getChat(message.getMessage()));
 						}

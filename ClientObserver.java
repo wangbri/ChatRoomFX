@@ -21,7 +21,7 @@ public class ClientObserver {
 		this.clientNum = clientNum;
 		this.socket = socket;
 		this.obj = obj;
-		this.chat.add(chat);
+//		this.chat.add(chat);
 	}
 	
 	public ArrayList<ServerObservable> getChatList(){

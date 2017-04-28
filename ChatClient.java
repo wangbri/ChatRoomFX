@@ -87,7 +87,7 @@ public class ChatClient {
 		cm.setCommand("exitChat");
 		cm.setMessage(chat);
 		writeCommand(cm);
-		threadStopped = true;
+//		threadStopped = true;
 	}
 
 	public void writeCommand(ChatPacket cm) {
@@ -142,6 +142,9 @@ public class ChatClient {
 									break;
 								case "updateLobbyClients":
 									client.updateClientList(message.getList());
+									break;
+								case "exitedLobby":
+									threadStopped = true;
 									break;
 							}
 						}
