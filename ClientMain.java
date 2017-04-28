@@ -2,8 +2,7 @@ package assignment7;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -55,8 +54,10 @@ public class ClientMain extends Application {
 //	public Object chatLock = new Object();
 	public Object clientLock = new Object();
 	public ClientLobbyController lobbyController;
-	public ClientChatroomController chatController;
+//	public ClientChatroomController chatController;
 	public ClientChatroomController privateChatController;
+	
+	public HashMap<String, ClientChatroomController> controllerList = new HashMap<String, ClientChatroomController>();
 	
 	public TabPane panes;
 	
@@ -91,7 +92,7 @@ public class ClientMain extends Application {
 //		mongoClient.close();
 	}
 	
-	// called by ChatClient
+	// FOR LOBBY CONTROLLER
 	public void updateClientList(ArrayList<String> list) {
 		if (list.get(0).equals("")) {
 			list.clear();
@@ -107,7 +108,8 @@ public class ClientMain extends Application {
 		lobbyController.updateLobbyChats(chatList);
 	}
 	
-	public void updateChatClients(ArrayList<String> list) {		
+	// FOR GROUP CHATS
+	public void updateChatClients(String chat, ArrayList<String> list) {		
 		if (list.get(0).equals("")) {
 			list.clear();
 		}
@@ -126,16 +128,18 @@ public class ClientMain extends Application {
 		
 		System.out.println(list);
 		chatClientList = FXCollections.observableArrayList(list);
-		System.out.println("Asdfadsf" + chatController);
-		chatController.updateClientList(chatClientList);
+		
+		
+		System.out.println("ADSFASDFA" + controllerList.get(chat) + chat);
+		controllerList.get(chat).updateClientList(FXCollections.observableArrayList(list));
 	}
 	
-	public void updateChat(String message) {
-		chatController.updateChat(message);
+	public void updateChat(String chat, String message) {
+		controllerList.get(chat).updateChat(message);
 	}
 	
 	
-	// called by ChatClient (private)
+	// FOR PRIVATE CHATS
 	public void updatePrivateChatClients(ArrayList<String> list) {		
 		if (list.get(0).equals("")) {
 			list.clear();
@@ -186,6 +190,10 @@ public class ClientMain extends Application {
 	
 	public void showChatroom(String chatName, boolean isPrivate) {
 		System.out.println("CALLED HERE");
+		isShown = false; //temporary 'hacky' solution, not very thread-safe
+		
+		
+		
 //		try {
 //       	 	 loaderChatroom = new FXMLLoader(getClass().getResource("ClientChatroom.fxml"));
 //	         chatStage.setScene(new Scene((TabPane) loaderChatroom.load()));
@@ -194,7 +202,7 @@ public class ClientMain extends Application {
 //		}
 		
 		Tab chatTab = new Tab();
-        chatTab.setText("Chat");
+        chatTab.setText(chatName);
         
         FXMLLoader loaderChat = null;
         
@@ -215,11 +223,13 @@ public class ClientMain extends Application {
 			privateChatController.setClient(client);
 			System.out.println("private" + privateChatController.getClass().toString());
 		} else {
-
+			ClientChatroomController chatController = null;
 			chatController = loaderChat.<ClientChatroomController>getController();
 			chatController.setName(chatName);
 			System.out.println("group" + chatController.getClass().toString());
 			chatController.setClient(client);
+			
+			controllerList.put(chatName,  chatController);
 		}
 		
 //		chatStage.show();

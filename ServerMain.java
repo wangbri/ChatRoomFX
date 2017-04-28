@@ -136,6 +136,7 @@ public class ServerMain  {
 				clients.add(events.get(chat).get(i).toString());
 			} else {
 				cmd.setCommand("updateGroupClients");
+				cmd.setChat(chat.toString());
 				clients.add(events.get(chat).get(i).toString());
 			}
 		}
