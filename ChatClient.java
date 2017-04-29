@@ -37,7 +37,8 @@ public class ChatClient {
 	private void setUpNetworking() throws Exception {		
 		// establish connection with server
 //		Socket sock = new Socket("169.254.61.84", 4242);
-		Socket sock = new Socket("localhost", 4242);
+//		Socket sock = new Socket("localhost", 4242);
+		Socket sock = new Socket("ec2-54-191-18-47.us-west-2.compute.amazonaws.com", 4242);
 		
 		objectInput = new ObjectInputStream(sock.getInputStream());
 		

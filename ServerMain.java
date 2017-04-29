@@ -5,12 +5,25 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
+//import com.mongodb.BasicDBObject;
+//import com.mongodb.DB;
+//import com.mongodb.DBCollection;
+//import com.mongodb.DBObject;
+//import com.mongodb.MongoClient;
+//import com.mongodb.MongoClientURI;
+//import com.mongodb.client.MongoCollection;
+//import com.mongodb.client.MongoDatabase;
+//
+//import org.bson.Document;
+//import org.junit.Assert;
 
 //TODO: closing port if in lobby
 
@@ -22,18 +35,40 @@ public class ServerMain  {
 	HashMap<ServerObservable, ArrayList<ClientObserver>> events = new HashMap<ServerObservable, ArrayList<ClientObserver>>();
 	ArrayList<ClientObserver> clientList = new ArrayList<ClientObserver>();
 	ServerObservable chatLobby;
+//	static MongoClient mongoClient;
 	Object lock = new Object();
 	static int clientNum;
 	int serverNum;
-	
-	private boolean threadStopped = false;
 		
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static void main(String[] args) {
 		try {
 			new ServerMain().setUpNetworking();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+//		mongoClient = new MongoClient(new MongoClientURI("mongodb://admin:pass@ds033066.mlab.com:33066/chatfx"));
+//		
+//		MongoDatabase database = mongoClient.getDatabase("chatfx");
+//		if (database.getCollection("mynewcollection") != null) {
+//			database.getCollection("mynewcollection").drop();
+//		}
+//		
+//		database.createCollection("testCollection");
+//		MongoCollection collection = (MongoCollection) database.getCollection("mynewcollection");
+//		
+//		List<Integer> books = Arrays.asList(27464, 747854);
+//		Document person = new Document("_id", "jo")
+//		                            .append("name", "Jo Bloggs")
+//		                            .append("address", new BasicDBObject("street", "123 Fake St")
+//		                                                         .append("city", "Faketon")
+//		                                                         .append("state", "MA")
+//		                                                         .append("zip", 12345))
+//		                            .append("books", books);
+//		
+//		collection.insertOne(person);
+//		mongoClient.close();
 	}
 	
 	/**
@@ -65,8 +100,6 @@ public class ServerMain  {
 			if (!events.get(chat).isEmpty()) {
 				events.get(chat).remove(index);
 			}
-			
-
 		}	
 	}
 	
@@ -88,11 +121,15 @@ public class ServerMain  {
 		// initial port for clients to connect
 		serverNum = 0;
 		// String addr = "169.254.61.84"; // router: 192.168.184.1
-		String addr = "localhost"; //name of the ip address
+//		 String addr = "localhost"; //name of the ip address
+		String addr = "0.0.0.0";
 		
-		InetAddress ip = InetAddress.getByName(addr);
-		ServerSocket serverSock = new ServerSocket(4242, 10, ip); //60784
-		System.out.println(ip.getHostName());
+//		InetAddress ip = InetAddress.getByName(addr);
+//		ServerSocket serverSock = new ServerSocket(4242, 10, ip); //60784
+		ServerSocket serverSock = new ServerSocket();
+		serverSock.bind(new InetSocketAddress(addr, 4242));
+		System.out.println(serverSock.getLocalSocketAddress());
+//		System.out.println(ip.getHostName());
 			
 		// create lobby for chat
 		chatLobby = new ServerObservable(serverNum);

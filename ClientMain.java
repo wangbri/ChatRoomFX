@@ -2,9 +2,7 @@ package assignment7;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -16,9 +14,8 @@ import java.util.logging.Logger;
 //import com.mongodb.MongoClientURI;
 //import com.mongodb.client.MongoCollection;
 //import com.mongodb.client.MongoDatabase;
-//
-//import org.bson.Document;
-//import org.junit.Assert;
+//import static com.mongodb.client.model.Filters.*;
+
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -66,34 +63,19 @@ public class ClientMain extends Application {
 	
 	public TabPane panes;
 	
+//	public static MongoClient mongoClient;
+	public String username;
+	public String password;
+	
 	boolean isShown = false;
 	
 	public static void main(String[] args) {
 		launch(args);
 		
-//		MongoClient mongoClient = new MongoClient(new MongoClientURI("mongodb://admin:pass@ds033066.mlab.com:33066/chatfx"));
-////		MongoClient mongoClient = new MongoClient();
-//		
-//		MongoDatabase database = mongoClient.getDatabase("chatfx");
-//		if (database.getCollection("mynewcollection") != null) {
-//			database.getCollection("mynewcollection").drop();
-//		}
-//		
-////		database.createCollection("testCollection");
-//		MongoCollection collection = (MongoCollection) database.getCollection("mynewcollection");
-//		
-//		List<Integer> books = Arrays.asList(27464, 747854);
-//		Document person = new Document("_id", "jo")
-//		                            .append("name", "Jo Bloggs")
-//		                            .append("address", new BasicDBObject("street", "123 Fake St")
-//		                                                         .append("city", "Faketon")
-//		                                                         .append("state", "MA")
-//		                                                         .append("zip", 12345))
-//		                            .append("books", books);
-//		
-//		
-//		collection.insertOne(person);
-//		mongoClient.close();
+		
+		
+		
+		//IF CLIENT IS VALID, LAUNCH LOBBY IN APPLICATION THREAD
 	}
 	
 	// FOR LOBBY CONTROLLER
@@ -308,9 +290,79 @@ public class ClientMain extends Application {
 		System.exit(0);
 	}
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void start(Stage primaryStage) {
 		FXMLLoader loaderPanes = null;
 		FXMLLoader loaderLobby = null;
+		
+		// IF USER/PASS IS VALID, LAUNCH, OTHERWISE BLOCK
+		
+//		mongoClient = new MongoClient(new MongoClientURI("mongodb://admin:pass@ds033066.mlab.com:33066/chatfx"));
+//		
+//		synchronized(clientLock) {
+//			try {
+//				clientLock.wait(3000);
+//			} catch (InterruptedException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//		}
+//			
+//		
+//		MongoDatabase db = mongoClient.getDatabase("chatfx");
+//		MongoCollection col = null;
+//		Document doc = null;
+//		
+//		
+//		if ((col = db.getCollection("userCredentials")) != null) {		
+//			col = db.getCollection("userCredentials");
+//		} else {
+//			System.out.println("NULL");
+//			db.createCollection("userCredentials");
+//			col = db.getCollection("userCredentials");
+//		}
+//		
+//		username = "John";
+//		password = "123";
+//		
+//		
+//		while (true) {
+//			if ((doc = (Document) col.find(eq("_username", username)).first()) != null) {
+//				System.out.println("FOUND " + doc.toString());
+//				if (doc.get("_password").equals(password)) {
+//					System.out.println("LAUNCHED");
+//					break;
+//				} else {
+//					System.out.println("TRY AGAIN");
+//					break;
+//				}
+//			} else {
+//				doc = new Document("_username", username)
+//								.append("_password", password);
+//				col.insertOne(doc);
+//				System.out.println("CREATED NEW USER");
+//				break;
+//			}
+//		}
+//		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		
 		lobbyStage = new Stage();
 		chatStage = new Stage();
