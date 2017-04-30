@@ -13,21 +13,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-//import com.mongodb.BasicDBObject;
-//import com.mongodb.DB;
-//import com.mongodb.DBCollection;
-//import com.mongodb.DBObject;
-//import com.mongodb.MongoClient;
-//import com.mongodb.MongoClientURI;
-//import com.mongodb.client.MongoCollection;
-//import com.mongodb.client.MongoDatabase;
-//
-//import org.bson.Document;
-//import org.junit.Assert;
 
-//TODO: closing port if in lobby
-
-//TODO: change name
 public class ServerMain  {
 	
 	//keeps track of which clients are involved in which chat
@@ -39,6 +25,7 @@ public class ServerMain  {
 	Object lock = new Object();
 	static int clientNum;
 	int serverNum;
+	ServerSocket serverSock;
 		
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static void main(String[] args) {
@@ -47,28 +34,6 @@ public class ServerMain  {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-//		mongoClient = new MongoClient(new MongoClientURI("mongodb://admin:pass@ds033066.mlab.com:33066/chatfx"));
-//		
-//		MongoDatabase database = mongoClient.getDatabase("chatfx");
-//		if (database.getCollection("mynewcollection") != null) {
-//			database.getCollection("mynewcollection").drop();
-//		}
-//		
-//		database.createCollection("testCollection");
-//		MongoCollection collection = (MongoCollection) database.getCollection("mynewcollection");
-//		
-//		List<Integer> books = Arrays.asList(27464, 747854);
-//		Document person = new Document("_id", "jo")
-//		                            .append("name", "Jo Bloggs")
-//		                            .append("address", new BasicDBObject("street", "123 Fake St")
-//		                                                         .append("city", "Faketon")
-//		                                                         .append("state", "MA")
-//		                                                         .append("zip", 12345))
-//		                            .append("books", books);
-//		
-//		collection.insertOne(person);
-//		mongoClient.close();
 	}
 	
 	/**
@@ -120,13 +85,13 @@ public class ServerMain  {
 		
 		// initial port for clients to connect
 		serverNum = 0;
-		// String addr = "169.254.61.84"; // router: 192.168.184.1
-//		 String addr = "localhost"; //name of the ip address
+// 		String addr = "169.254.61.84"; // router: 192.168.184.1
+//		String addr = "localhost"; //name of the ip address
 		String addr = "0.0.0.0";
 		
 //		InetAddress ip = InetAddress.getByName(addr);
 //		ServerSocket serverSock = new ServerSocket(4242, 10, ip); //60784
-		ServerSocket serverSock = new ServerSocket();
+		serverSock = new ServerSocket();
 		serverSock.bind(new InetSocketAddress(addr, 4242));
 		System.out.println(serverSock.getLocalSocketAddress());
 //		System.out.println(ip.getHostName());
@@ -147,13 +112,9 @@ public class ServerMain  {
 			ClientObserver writer = new ClientObserver(++clientNum, clientSocket, obj, chatLobby);
 			
 			clientList.add(writer);
-			registerObserver(chatLobby, writer);		
-			updateServerChats();
+				
 			
-			ChatPacket cp = new ChatPacket("initMessage");
-			cp.setMessage(String.valueOf(writer.getClientNum()));
-			writer.update(cp);
-			
+
 			// create thread to handle (read) each client's "startChat button press"
 			Thread t = new Thread(new ChatListHandler(clientSocket, writer));
 			t.start();
@@ -166,18 +127,21 @@ public class ServerMain  {
 		ArrayList<String> clients = new ArrayList<String>();
 		ChatPacket cmd = new ChatPacket();
 		
+		System.out.println("CHAT " + chat.toString());
+		
 		for (int i = 0; i < events.get(chat).size(); i++) {
 			if (chat == chatLobby) {
 				cmd.setCommand("updateLobbyClients");
-				clients.add(events.get(chat).get(i).toString());
+				System.out.println(events.get(chat).get(i).getClientName());
+				clients.add(events.get(chat).get(i).getClientName());
 			} else if (chat.isPrivate) {
 				cmd.setCommand("updatePrivateClients");
 				cmd.setChat(chat.toString());
-				clients.add(events.get(chat).get(i).toString());
+				clients.add(events.get(chat).get(i).getClientName());
 			} else {
 				cmd.setCommand("updateGroupClients");
 				cmd.setChat(chat.toString());
-				clients.add(events.get(chat).get(i).toString());
+				clients.add(events.get(chat).get(i).getClientName());
 			}
 		}
 		
@@ -256,16 +220,19 @@ public class ServerMain  {
 			try {
 				while ((message = (ChatPacket)objectInput.readObject()) != null) {
 					
+					System.out.println(message.getCommand());
+					
 					//if the data is a message being transmitted
 					if(message.getCommand().equals("sendMessage")){
 						//determine the nature of the chat
-						
 						
 						if (!this.client.getChat(message.getChat()).isPrivate) {
 							message.setCommand("groupChat");
 						} else {
 							message.setCommand("privateChat");
 						}
+						
+						message.setMessage(client.getClientName() + ":\n   " + message.getMessage());
 							
 						System.out.println(this.client.getChat(message.getChat()));
 						notifyObservers(this.client.getChat(message.getChat()), message);
@@ -292,6 +259,7 @@ public class ServerMain  {
 						for (ServerObservable s : events.keySet()) {
 							if (s.toString().equals(message.getMessage())) {
 								chat = s;
+								System.out.println("found chat");
 								break;
 							}
 						}
@@ -310,9 +278,9 @@ public class ServerMain  {
 					} else if(message.getCommand().contains("joinPrivateChat")) { // join existing private chat
 						boolean chatExists = false;
 						int chatIndex = 0;
-						
+					
 						for(int i = 0; i < clientList.size(); i++){
-							if(clientList.get(i).toString().contains(message.getMessage())){
+							if(clientList.get(i).getClientName().contains(message.getMessage())){
 								chatExists = true;
 								chatIndex = i;
 								break;
@@ -330,7 +298,7 @@ public class ServerMain  {
 							cm.setMessage(message.getMessage());
 							this.client.update(cm);					
 							
-							cm.setMessage(this.client.toString());
+							cm.setMessage(this.client.getClientName());
 							clientList.get(chatIndex).update(cm);						
 							
 							clients.add(this.client);
@@ -345,8 +313,7 @@ public class ServerMain  {
 					
 					//TODO: Exit Chat - updateServerClients 
 					}else if(message.getCommand().equals("exitChat")){
-						
-						System.out.println("EXITING CHAT");
+
 						//close socket if it is a lobby 
 						if(message.getMessage().equals("Chat 0")){
 							ArrayList<ServerObservable> chatList = this.client.getChatList();
@@ -361,38 +328,19 @@ public class ServerMain  {
 							
 							ChatPacket cp = new ChatPacket("exitedLobby");
 							this.client.update(cp);
-							Thread.currentThread().stop();
 							sock.close();
+							System.out.println("Asdfasdfsa");
 							
+							if (client.getClientNum() == 1) {
+								serverSock.close(); // if Client 1 leaves, close server
+							} else {
+								Thread.currentThread().stop();
+							}
 							
-//							updateServerClients(this.client.getChat(message.getMessage()));
-//							this.client.getSocket().close();
-						} else {
-							//TODO: remove from client getChatList
-//							int index = this.client.getChatList().indexOf(this.client);
-//							this.client.getChatList().remove(index);			
-							
+						} else {		
 							ServerObservable chat = this.client.getChat(message.getMessage());
 							unregisterObserver(this.client.getChat(message.getMessage()), this.client);
 							updateServerClients(chat);
-							
-//							//if there is only one person left in the private chat, delete it
-//							if(chat.isPrivate){
-//								if(events.get(chat).size()==1){
-//									events.remove(chat);
-//								}
-//							}
-							
-//							if(!chat.isPrivate){
-								if(events.get(chat).isEmpty()){
-									updateServerChats();
-									events.remove(chat);
-								}
-//							}
-//							if(!events.containsKey(chat)){
-//								updateServerChats();
-//								events.remove(chat);
-//							}
 						}
 						
 					} else if (message.getCommand().equals("exitPrivateChat")) {
@@ -414,6 +362,11 @@ public class ServerMain  {
 							clientList.get(clientIndex).update(cp);
 						}
 						
+					} else if (message.getCommand().equals("initMessage")) {
+						System.out.println("here" + message.getMessage());
+						client.setClientName(message.getMessage());
+						registerObserver(chatLobby, client);	
+						updateServerChats();
 					}
 					
 				}

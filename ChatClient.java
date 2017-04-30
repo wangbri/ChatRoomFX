@@ -37,19 +37,29 @@ public class ChatClient {
 	private void setUpNetworking() throws Exception {		
 		// establish connection with server
 //		Socket sock = new Socket("169.254.61.84", 4242);
-//		Socket sock = new Socket("localhost", 4242);
-		Socket sock = new Socket("ec2-54-191-18-47.us-west-2.compute.amazonaws.com", 4242);
+		Socket sock = new Socket("ec2-54-149-23-179.us-west-2.compute.amazonaws.com", 4242);
+//		Socket sock = new Socket("ec2-54-187-25-160.us-west-2.compute.amazonaws.com", 4242);
 		
 		objectInput = new ObjectInputStream(sock.getInputStream());
 		
 		// writes output to socket from client -> server
 		writer = new ObjectOutputStream(sock.getOutputStream());
 		
+		initMessage();
+		
 		// reads input from socket from server -> client
 		clientReaderThread = new Thread(new ListUpdater(clientList));
 		clientReaderThread.start();
 		
+		
+		
 		System.out.println("networking established");
+	}
+	
+	public void initMessage() {
+		ChatPacket cm = new ChatPacket("initMessage");
+		cm.setMessage(client.username);
+		writeCommand(cm);
 	}
 	
 	public void addChat() {
@@ -121,6 +131,7 @@ public class ChatClient {
 							switch (message.getCommand()) {
 								case "initMessage":
 									clientNum = Integer.parseInt(message.getMessage());
+									client.lobbyStage.setTitle("Client " + clientNum);
 									break;
 								case "groupChat":
 									client.updateChat(message.getChat(), message.getMessage());

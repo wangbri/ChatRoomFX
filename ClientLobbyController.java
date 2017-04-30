@@ -37,24 +37,12 @@ public class ClientLobbyController implements Initializable {
     private String selectedChat;
     private String selectedClient;
     
-    private ContextMenu cm;
-    
     public void setClient(ChatClient client) {
     	this.client = client;
     }
     
     @Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
-    	cm = new ContextMenu();
-    	
-    	MenuItem cmItem = new MenuItem("Message..");
-    	cmItem.setOnAction(new EventHandler<ActionEvent>() {
-    	    public void handle(ActionEvent e) {
-//    	        client.joinPrivateChat(selectedClient);
-    	    }
-    	});
-    	
-    	cm.getItems().add(cmItem);
 
     	lobbyChats.setOnMouseClicked(new EventHandler<MouseEvent>() {
 
@@ -71,10 +59,6 @@ public class ClientLobbyController implements Initializable {
 			@Override
 			public void handle(MouseEvent arg0) {
 				// TODO Auto-generated method stub
-//				if (arg0.getButton() == MouseButton.SECONDARY) { // is right click
-//					selectedClient = lobbyClients.getSelectionModel().getSelectedItem();
-//					cm.show(lobbyClients, arg0.getScreenX(), arg0.getScreenY());
-//				}
 				if (arg0.getClickCount() == 2) {
 					System.out.println("PRIVATE MESSAGING...");
 					selectedClient = lobbyClients.getSelectionModel().getSelectedItem();

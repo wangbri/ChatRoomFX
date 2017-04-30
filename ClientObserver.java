@@ -12,6 +12,15 @@ import java.util.ArrayList;
 
 public class ClientObserver {
 	private int clientNum;
+	private String clientName;
+	public String getClientName() {
+		return clientName;
+	}
+
+	public void setClientName(String clientName) {
+		this.clientName = clientName;
+	}
+
 	private Socket socket;
 	private ObjectOutputStream obj;
 	private ArrayList<ServerObservable> chat = new ArrayList<ServerObservable>();
